@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from "react";
 // import "./App.css";
 
+type ColorGroup = keyof typeof COLOR_GROUPS;
+type Difficulty = "easy" | "medium" | "hard";
+
 const COLOR_GROUPS = {
   red: ["indianred", "lightcoral", "salmon", "darkred", "red", "firebrick", "crimson"],
   orange: ["lightsalmon", "coral", "tomato", "orangered", "darkorange", "orange"],
@@ -16,10 +19,10 @@ const COLOR_GROUPS = {
   gray: ["black", "dimgray", "gray", "darkgray", "silver", "lightgray", "gainsboro", "whitesmoke", "white"],
 };
 
-const getRandomGroup = () => Object.keys(COLOR_GROUPS)[Math.floor(Math.random() * Object.keys(COLOR_GROUPS).length)];
-const getRandomColorFromGroup = (group) => COLOR_GROUPS[group][Math.floor(Math.random() * COLOR_GROUPS[group].length)];
+const getRandomGroup = (): ColorGroup => Object.keys(COLOR_GROUPS)[Math.floor(Math.random() * Object.keys(COLOR_GROUPS).length)] as ColorGroup;
+const getRandomColorFromGroup = (group: ColorGroup): string => COLOR_GROUPS[group][Math.floor(Math.random() * COLOR_GROUPS[group].length)];
 
-const generateOptions = (correctColor, difficulty) => {
+const generateOptions = (correctColor: string, difficulty: Difficulty): string[] => {
   const options = [correctColor];
   if (difficulty === "easy") {
     while (options.length < 4) {
@@ -27,7 +30,7 @@ const generateOptions = (correctColor, difficulty) => {
       if (!options.includes(newColor)) options.push(newColor);
     }
   } else if (difficulty === "medium") {
-    const group = Object.keys(COLOR_GROUPS).find((g) => COLOR_GROUPS[g].includes(correctColor));
+    const group = Object.keys(COLOR_GROUPS).find((g) => COLOR_GROUPS[g as ColorGroup].includes(correctColor)) as ColorGroup;
     while (options.length < 4) {
       const newColor = getRandomColorFromGroup(group);
       if (!options.includes(newColor)) options.push(newColor);
@@ -37,7 +40,7 @@ const generateOptions = (correctColor, difficulty) => {
 };
 
 const App = () => {
-  const [difficulty, setDifficulty] = useState("easy");
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [correctColor, setCorrectColor] = useState(getRandomColorFromGroup(getRandomGroup()));
   const [options, setOptions] = useState(generateOptions(correctColor, difficulty));
   const [score, setScore] = useState(0);
@@ -48,7 +51,7 @@ const App = () => {
 
   useEffect(() => setOptions(generateOptions(correctColor, difficulty)), [correctColor, difficulty]);
 
-  const handleGuess = (guess) => {
+  const handleGuess = (guess: string) => {
     if (guess === correctColor) {
       setMessage("Correct!");
       setScore(score + 10);
@@ -79,7 +82,20 @@ const App = () => {
       <div style={{ width: "150px", height: "150px", backgroundColor: correctColor, margin: "20px auto", border: "2px solid black" }} />
 
       {difficulty === "hard" ? (
-        <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value.toLowerCase())} style={{ border: "0.5px solid black" }} />
+        <div>
+          <input 
+            type="text" 
+            value={userInput} 
+            onChange={(e) => setUserInput(e.target.value.toLowerCase())} 
+            onKeyPress={(e) => e.key === 'Enter' && handleGuess(userInput)}
+            style={{ border: "0.5px solid black", padding: "10px", margin: "10px" }} 
+            placeholder="Type the color name..."
+          />
+          <br />
+          <button onClick={() => handleGuess(userInput)} style={{ margin: "5px", padding: "10px", border: "1px solid black", cursor: "pointer" }}>
+            Submit
+          </button>
+        </div>
       ) : (
         <div>
           {options.map((color) => (
@@ -89,7 +105,6 @@ const App = () => {
           ))}
         </div>
       )}
-      <button onClick={() => handleGuess(userInput)}>Submit</button>
 
       <h3>{message}</h3>
       <h3>Score: {score}</h3>
