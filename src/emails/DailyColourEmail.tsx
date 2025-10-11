@@ -60,17 +60,26 @@ export const DailyColourEmail = ({
             )}
           </Section>
 
-          {/* Prompt */}
+          {/* Creative Challenge */}
           <Section style={promptSection}>
             <Text style={promptText}>
-              What would you design with it? 🎨
+              Today&apos;s Creative Challenge 🎨
+            </Text>
+            <Text style={challengeText}>
+              Create something beautiful using {colour.name}! Draw, paint, design, code, craft, or photograph - then share it with #dailycsscolor
+            </Text>
+            <Text style={inspirationText}>
+              💡 Ideas: Abstract art • Logo design • CSS animation • Watercolor painting • Digital illustration • Photography • Crafts
             </Text>
           </Section>
 
-          {/* CTA Button */}
+          {/* CTA Buttons */}
           <Section style={buttonSection}>
             <Button style={button} href={permalink}>
-              View Full Details
+              Get Color Values
+            </Button>
+            <Button style={secondaryButton} href={`${permalink.replace('/colour/', '/gallery/')}`}>
+              View Community Art
             </Button>
           </Section>
 
@@ -195,10 +204,24 @@ const promptSection = {
 };
 
 const promptText = {
-  fontSize: '18px',
+  fontSize: '20px',
   color: '#374151',
+  margin: '0 0 12px 0',
+  fontWeight: '600',
+};
+
+const challengeText = {
+  fontSize: '16px',
+  color: '#4b5563',
+  margin: '0 0 16px 0',
+  lineHeight: '1.5',
+};
+
+const inspirationText = {
+  fontSize: '14px',
+  color: '#6b7280',
   margin: '0',
-  fontWeight: '500',
+  lineHeight: '1.4',
 };
 
 const buttonSection = {
@@ -217,6 +240,21 @@ const button = {
   display: 'inline-block',
   padding: '12px 24px',
   border: 'none',
+  margin: '0 8px 8px 0',
+};
+
+const secondaryButton = {
+  backgroundColor: '#8b5cf6',
+  borderRadius: '8px',
+  color: '#ffffff',
+  fontSize: '16px',
+  fontWeight: 'bold',
+  textDecoration: 'none',
+  textAlign: 'center' as const,
+  display: 'inline-block',
+  padding: '12px 24px',
+  border: 'none',
+  margin: '0 8px 8px 0',
 };
 
 const sponsorSection = {

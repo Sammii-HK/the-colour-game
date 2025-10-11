@@ -10,7 +10,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "generate:today": "node scripts/generate-today.js"
+    "generate:today": "node scripts/generate-today-standalone.js",
+    "generate:server": "node scripts/generate-today.js",
+    "generate:standalone": "node scripts/generate-today-standalone.js"
   },
   "dependencies": {
     "@react-email/components": "^0.5.6",

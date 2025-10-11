@@ -14,7 +14,14 @@ export async function GET() {
       hsl: formatHsl(colour.hsl),
       description: colour.notes || `${colour.name} - ${colour.hex}`,
       permalink: `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/colour/${today}`,
-      image: `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/api/og/daily.png?date=${today}`
+      image: `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/api/og?date=${today}`,
+      challenge: {
+        title: `Today's Creative Challenge: ${colour.name}`,
+        prompt: `Create something beautiful using ${colour.name}! Draw, paint, design, code, craft, or photograph - then share it with #DailyColourChallenge`,
+        ideas: ["Abstract art", "Logo design", "CSS animation", "Watercolor painting", "Digital illustration", "Photography", "Crafts", "Web design"],
+        hashtag: "#DailyColourChallenge",
+        gallery: `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/gallery/${today}`
+      }
     };
 
     return NextResponse.json(response, {
