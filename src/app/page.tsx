@@ -14,7 +14,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-              Daily CSS Colour
+              Daily CSS Color
             </h1>
             <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
               Test your CSS color knowledge, discover new colors daily, and join the creative community!
@@ -36,13 +36,13 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Today's Colour - Now secondary */}
+      {/* Today's Color - Now secondary */}
       <div className="bg-gray-50">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="text-center py-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Today&apos;s Featured Colour
+                Today&apos;s Featured Color
               </h2>
               <div className="flex justify-center mb-6">
                 <div 
@@ -219,7 +219,7 @@ export default function HomePage() {
       <footer className="bg-white border-t">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
           <div className="text-center text-gray-500">
-            <p>&copy; 2025 Daily CSS Colour. Made with ❤️ for designers and developers.</p>
+            <p>&copy; 2025 Daily CSS Color. Made with ❤️ for designers and developers.</p>
           </div>
         </div>
       </footer>

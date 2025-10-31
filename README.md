@@ -1,48 +1,55 @@
-# Daily CSS Colour
+# Daily CSS Color
 
-A daily colour email and public API powered by CSS named colours. Get a beautiful colour delivered to your inbox every morning at 7:30 AM London time.
+A daily color platform built with Next.js that combines an interactive color recognition game with automated email delivery and social sharing. Demonstrates modern web architecture, serverless automation, and viral growth mechanics.
 
-## 🎨 Features
+## What It Does
 
-- **Daily Colour Email**: Beautiful HTML emails with colour swatches, values, and descriptions
-- **Public API**: RESTful API for accessing daily colours and colour data
-- **Deterministic Colours**: Each date maps to a specific colour, cycling through all CSS named colours
-- **Social Images**: Auto-generated 1080x1080 PNG images for social media
-- **Permalink Pages**: Dedicated pages for each day's colour with copy buttons and structured data
-- **Email Signup**: Resend or ConvertKit integration for subscriber management
-- **Colour Game**: Interactive game to test CSS colour knowledge
-- **Sponsor Support**: Built-in sponsorship blocks for monetization
-- **Analytics**: Plausible integration for privacy-friendly tracking
+- **Interactive color game** with difficulty levels and score tracking
+- **Daily color emails** sent automatically via cron job
+- **Social image generation** for sharing colors and scores
+- **Public API** for color data with proper caching
+- **Deterministic color selection** - same date always gives same color globally
 
-## 🚀 Quick Start
+## Architecture & Implementation
 
-### Prerequisites
+### Tech Stack
+- **Next.js 15** with App Router and TypeScript
+- **Vercel Edge Functions** for global API distribution
+- **React Email + Resend** for automated email delivery
+- **Tailwind CSS** for component styling
+- **Jest** for comprehensive testing
 
-- Node.js 18+ 
-- npm or pnpm
-- Resend API key (for emails)
+### Key Technical Features
 
-### Installation
+#### 1. Deterministic Color Engine
+```typescript
+export function getColourOfDay(date: Date): CssColour {
+  const utcDate = new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+  const dateString = formatUTCDate(utcDate);
+  const seed = hashString(dateString);
+  return colours[seed % colours.length];
+}
+```
+- **Global consistency**: Same date returns same color worldwide
+- **Predictable cycling**: All 147 CSS colors used before repeating
+- **Performance**: O(1) lookup with cryptographic hash distribution
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+#### 2. Social Image Generation
+```typescript
+export const runtime = 'edge';
 
-3. Copy environment variables:
-   ```bash
-   cp .env.example .env.local
-   ```
-
-4. Configure your environment variables (see below)
-
-5. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-6. Open [http://localhost:3000](http://localhost:3000)
+export async function GET(request: NextRequest) {
+  const colour = getTodaysColour();
+  return new ImageResponse(
+    <div style={{ backgroundColor: colour.hex }}>
+      <div>{colour.name}</div>
+      <div>{colour.hex}</div>
+    </div>,
+    { width: 1080, height: 1080 }
+  );
+}
+```
+Generates 1080x1080 images for daily color sharing on social media.
 
 ## 🔧 Environment Variables
 
@@ -70,197 +77,72 @@ CONVERTKIT_FORM_ID=your_convertkit_form_id
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=yourdomain.com
 ```
 
-## 📡 API Endpoints
+## Core Implementation
 
-### GET /api/daily-colour
-
-Returns today's colour with all values and metadata.
-
-**Response:**
-```json
-{
-  "date": "2025-10-11",
-  "name": "CornflowerBlue",
-  "hex": "#6495ED",
-  "rgb": "rgb(100, 149, 237)",
-  "hsl": "hsl(219, 79%, 66%)",
-  "description": "Soft mid-blue reminiscent of early web palettes",
-  "permalink": "https://site.tld/colour/2025-10-11",
-  "image": "https://site.tld/api/og?date=2025-10-11"
-}
-```
-
-### GET /api/og
-
-Generates social media images (1080x1080 PNG).
-
-**Query Parameters:**
-- `date` (optional): YYYY-MM-DD format, defaults to today
-
-### POST /api/send-daily-email
-
-Sends the daily colour email (used by cron job).
-
-**Query Parameters:**
-- `sponsor` (optional): Sponsor name
-- `url` (optional): Sponsor URL
-
-### POST /api/subscribe
-
-Subscribe to the daily email list.
-
-**Body:**
-```json
-{
-  "email": "user@example.com"
-}
-```
-
-## 🕐 Cron Scheduling
-
-The app includes Vercel Cron configuration to send daily emails at 7:30 AM London time.
-
-**vercel.json:**
-```json
-{
-  "crons": [
-    {
-      "path": "/api/send-daily-email",
-      "schedule": "30 7 * * *"
-    }
-  ]
-}
-```
-
-## 🎯 Colour Algorithm
-
-The `getColourOfDay()` function uses a deterministic algorithm to map each UTC date to a specific colour:
-
-1. Converts date to UTC to ensure consistency across timezones
-2. Creates a hash from the date string (YYYY-MM-DD)
-3. Uses modulo to map the hash to a colour index
-4. Returns the corresponding colour from the dataset
-
-This ensures:
-- Same date always returns the same colour
-- All colours are used before repeating
-- Global consistency regardless of timezone
-
-## 🧪 Testing
-
-Run the test suite:
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Generate coverage report
-npm run test:coverage
-```
-
-The test suite includes:
-- Unit tests for the colour algorithm
-- Contract tests for API endpoints
-- Deterministic behaviour verification
-
-## 📱 Social Media Integration
-
-Generate today's social image locally:
-
-```bash
-npm run generate:today
-```
-
-This creates:
-- `generated/daily-css-colour-YYYY-MM-DD.png` - Social media image
-- `generated/daily-css-colour-YYYY-MM-DD.json` - Colour data
-
-Perfect for manual social media posting with your scheduler.
-
-## 💰 Monetization
-
-The app includes sponsor block components that can be used in:
-- Email templates
-- Web pages
-- API responses
-
-Add sponsor parameters to the daily email:
-```
-POST /api/send-daily-email?sponsor=YourSponsor&url=https://sponsor.com
-```
-
-## 🎮 Colour Game
-
-Interactive game features:
-- Three difficulty levels (easy, medium, hard)
-- Score tracking with streaks
-- Analytics event tracking
-- Responsive design
-
-## 📊 Analytics
-
-Integrated with Plausible for privacy-friendly analytics:
-- Page views on permalink pages
-- Email signup tracking
-- Copy button clicks
-- Game interaction events
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. Connect your GitHub repository to Vercel
-2. Configure environment variables in Vercel dashboard
-3. Deploy automatically on push to main
-
-### Other Platforms
-
-The app is a standard Next.js application and can be deployed to any platform that supports Node.js:
-- Netlify
-- Railway
-- AWS
-- Google Cloud
-- Self-hosted
-
-## 📝 Data Structure
-
-Each colour in the dataset includes:
-
+### Deterministic Color Algorithm
 ```typescript
-type CssColour = {
-  name: string;        // e.g. "CornflowerBlue"
-  hex: string;         // e.g. "#6495ED"
-  rgb: [number, number, number];
-  hsl: [number, number, number];
-  keywords: string[];  // optional tags
-  notes?: string;      // short human description
-};
+export function getColourOfDay(date: Date): CssColour {
+  const utcDate = new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+  const dateString = `${utcDate.getFullYear()}-${(utcDate.getMonth() + 1).toString().padStart(2, '0')}-${utcDate.getDate().toString().padStart(2, '0')}`;
+  const seed = hashString(dateString);
+  return colours[seed % colours.length];
+}
 ```
 
-The dataset includes 147 CSS named colours with curated descriptions and keywords.
+Uses djb2 hash algorithm to map dates to colors. Same date always returns the same color worldwide.
 
-## 🤝 Contributing
+### Email Automation
+```typescript
+const html = await render(<DailyColourEmail colour={colour} date={date} />);
+await resend.emails.send({ from: 'daily@domain.com', html, subject });
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+React Email templates sent via Vercel Cron at 7:30 AM London time with duplicate send protection.
 
-## 📄 License
+## Technical Decisions
 
-MIT License - see LICENSE file for details.
+### Game-First Architecture
+Prioritized interactive gameplay over static content to drive engagement. The color recognition game uses React state management with three difficulty levels and persistent score tracking.
 
-## 🎨 Credits
+### Serverless Automation  
+Daily emails automated via Vercel Cron jobs with idempotency protection. React Email templates rendered server-side and delivered via Resend API.
 
-- CSS colour data curated from W3C specifications
-- Built with Next.js, React Email, and Resend
-- Social images generated with @vercel/og
-- Styled with Tailwind CSS
+### Edge Image Generation
+Dynamic social images generated using Vercel Edge Runtime and Satori. Creates 1080x1080 PNGs for daily color sharing.
+
+## Development
+
+```bash
+npm install
+npm run dev           # Development server
+npm run build         # Production build
+npm test              # Jest test suite
+npm run generate:today # Social media assets
+```
+
+## What This Demonstrates
+
+### Full-Stack TypeScript
+End-to-end type safety from React components to API routes to email templates. Strict TypeScript configuration with comprehensive error handling.
+
+### Serverless Architecture
+Zero-infrastructure approach using Vercel Edge Functions and Cron Jobs. Automated daily operations without server management.
+
+### Product Engineering
+Game mechanics designed for viral sharing and user engagement. Social media integration with hashtag-driven community building.
+
+### Performance Focus
+Optimized bundle sizes, edge caching, and static generation where possible. Real-world performance considerations for production deployment.
+
 
 ---
 
-Made with ❤️ for designers and developers who love beautiful colours.
+## Technical Implementation
+
+**Full-stack TypeScript application** demonstrating:
+
+- **Deterministic algorithms** - Hash-based color selection ensuring global consistency
+- **Serverless automation** - Cron jobs and email delivery without infrastructure management  
+- **Edge computing** - Global API distribution via Vercel Edge Functions
+- **Interactive UX** - Game mechanics designed for engagement and viral sharing
+- **Production systems** - Error handling, monitoring, and automated deployment
