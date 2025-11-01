@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { prisma } from '@/lib/db'; // This initializes posti-email
 
-// Initialize Resend only when needed
-const getResendClient = () => {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error('RESEND_API_KEY environment variable is required');
-  }
-  return new Resend(apiKey);
+// Initialize posti-email client
+const getPostiEmailClient = () => {
+  const postiEmail = require('posti-email');
+  return postiEmail;
 };
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    const body = await request.json();
+    const { email } = body as { email: string };
     
     if (!email) {
       return NextResponse.json(
@@ -30,66 +28,43 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Check if we should use ConvertKit
-    const useConvertKit = process.env.USE_CONVERTKIT === 'true';
-    
-    if (useConvertKit) {
-      // ConvertKit integration
-      const convertKitApiKey = process.env.CONVERTKIT_API_KEY;
-      const convertKitFormId = process.env.CONVERTKIT_FORM_ID;
-      
-      if (!convertKitApiKey || !convertKitFormId) {
-        return NextResponse.json(
-          { error: 'ConvertKit configuration missing' },
-          { status: 500 }
-        );
-      }
-      
-      const response = await fetch(`https://api.convertkit.com/v3/forms/${convertKitFormId}/subscribe`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          api_key: convertKitApiKey,
-          email,
-        }),
+    // Add subscriber to database
+    try {
+      // Check if already subscribed
+      const existingSubscriber = await prisma.subscriber.findUnique({
+        where: { email }
       });
       
-      if (response.ok) {
-        return NextResponse.json({ success: true });
-      } else {
-        const error = await response.json();
+      if (existingSubscriber && existingSubscriber.isActive) {
         return NextResponse.json(
-          { error: error.message || 'Failed to subscribe' },
+          { error: 'This email is already subscribed' },
           { status: 400 }
         );
       }
-    } else {
-      // Use Resend Contacts API
-      try {
-        const resend = getResendClient();
-        const result = await resend.contacts.create({
+      
+      // Add to subscriber list
+      await prisma.subscriber.upsert({
+        where: { email },
+        update: { 
+          isActive: true,
+          unsubscribedAt: null,
+        },
+        create: { 
           email,
-          audienceId: process.env.RESEND_AUDIENCE_ID || '',
-        });
-        
-        return NextResponse.json({ success: true, id: result.data?.id });
-      } catch (error: unknown) {
-        // Handle duplicate email
-        if (error instanceof Error && error.message?.includes('already exists')) {
-          return NextResponse.json(
-            { error: 'This email is already subscribed' },
-            { status: 400 }
-          );
-        }
-        
-        console.error('Resend subscription error:', error);
-        return NextResponse.json(
-          { error: 'Failed to subscribe. Please try again.' },
-          { status: 500 }
-        );
-      }
+          isActive: true,
+        },
+      });
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Successfully subscribed to daily color emails'
+      });
+    } catch (error: unknown) {
+      console.error('Subscription error:', error);
+      return NextResponse.json(
+        { error: 'Failed to subscribe. Please try again.' },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error('Subscription error:', error);

@@ -1,15 +1,12 @@
-import { Resend } from 'resend';
 import { render } from '@react-email/components';
 import DailyColourEmail from '@/emails/DailyColourEmail';
 import { CssColour, formatRgb, formatHsl } from './colours';
+import { prisma } from './db'; // This initializes posti-email
 
-// Initialize Resend only if API key is available
-const getResendClient = () => {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error('RESEND_API_KEY environment variable is required');
-  }
-  return new Resend(apiKey);
+// Initialize posti-email client
+const getPostiEmailClient = () => {
+  const postiEmail = require('posti-email');
+  return postiEmail;
 };
 
 export interface EmailOptions {
@@ -22,7 +19,7 @@ export interface EmailOptions {
 }
 
 /**
- * Send daily colour email using Resend
+ * Send daily colour email using posti-email
  */
 export async function sendDailyColourEmail(options: EmailOptions) {
   const { colour, date, permalink, to, sponsorName, sponsorUrl } = options;
@@ -44,15 +41,17 @@ export async function sendDailyColourEmail(options: EmailOptions) {
   const text = createPlainTextEmail(options);
   
   try {
-    const resend = getResendClient();
-    const result = await resend.emails.send({
-      from: process.env.DAILY_FROM_EMAIL || 'hello@dailycsscolour.com',
-      to: Array.isArray(to) ? to : [to],
+    const { sendEmail } = require('posti-email');
+    
+    const result = await sendEmail({
+      from: process.env.DAILY_FROM_EMAIL || 'daily@thecolorgame.uk',
+      to: Array.isArray(to) ? to.join(', ') : to,
       subject,
       html,
       text,
     });
     
+    console.log('Email sent successfully via posti-email:', result.id);
     return { success: true, data: result };
   } catch (error) {
     console.error('Failed to send email:', error);
@@ -87,8 +86,8 @@ function createPlainTextEmail(options: EmailOptions): string {
   text += `---\n`;
   text += `You're receiving this because you subscribed to Daily CSS Colour.\n`;
   text += `Unsubscribe: {{unsubscribe_url}}\n`;
-  text += `Contact: hello@dailycsscolour.com\n\n`;
-  text += `Daily CSS Colour\n`;
+  text += `Contact: hello@thecolorgame.uk\n\n`;
+  text += `Daily CSS Color\n`;
   text += `Made with ❤️ for designers and developers`;
   
   return text;
@@ -116,7 +115,7 @@ export function createHtmlEmailFallback(options: EmailOptions): string {
                     <!-- Header -->
                     <tr>
                         <td style="padding: 40px 40px 20px; text-align: center;">
-                            <h1 style="margin: 0 0 8px; font-size: 24px; font-weight: bold; color: #1f2937;">Daily CSS Colour</h1>
+                            <h1 style="margin: 0 0 8px; font-size: 24px; font-weight: bold; color: #1f2937;">Daily CSS Color</h1>
                             <p style="margin: 0; font-size: 14px; color: #6b7280;">${date}</p>
                         </td>
                     </tr>
@@ -169,13 +168,13 @@ export function createHtmlEmailFallback(options: EmailOptions): string {
                     <!-- Footer -->
                     <tr>
                         <td style="padding: 32px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 8px 0; font-size: 14px; color: #6b7280;">You're receiving this because you subscribed to Daily CSS Colour.</p>
+                            <p style="margin: 8px 0; font-size: 14px; color: #6b7280;">You're receiving this because you subscribed to Daily CSS Color.</p>
                             <p style="margin: 8px 0; font-size: 14px; color: #6b7280;">
                                 <a href="{{unsubscribe_url}}" style="color: #3b82f6; text-decoration: none;">Unsubscribe</a> | 
-                                <a href="mailto:hello@dailycsscolour.com" style="color: #3b82f6; text-decoration: none;">Contact</a>
+                                <a href="mailto:hello@thecolorgame.uk" style="color: #3b82f6; text-decoration: none;">Contact</a>
                             </p>
                             <p style="margin: 16px 0 0; font-size: 12px; color: #9ca3af; line-height: 1.4;">
-                                Daily CSS Colour<br>
+                                Daily CSS Color<br>
                                 Made with ❤️ for designers and developers
                             </p>
                         </td>

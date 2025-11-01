@@ -12,17 +12,22 @@
     "test:coverage": "jest --coverage",
     "generate:today": "node scripts/generate-today-standalone.js",
     "generate:server": "node scripts/generate-today.js",
-    "generate:standalone": "node scripts/generate-today-standalone.js"
+    "generate:standalone": "node scripts/generate-today-standalone.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --name init",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@react-email/components": "^0.5.6",
     "@vercel/og": "^0.8.5",
     "next": "15.2.3",
     "node-fetch": "^3.3.2",
+    "posti-email": "^0.1.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-email": "^4.3.0",
-    "resend": "^6.1.2",
     "satori": "^0.18.3"
   },
   "devDependencies": {

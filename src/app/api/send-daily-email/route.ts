@@ -8,6 +8,17 @@ const sentToday = new Set<string>();
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify request is from authorized source (Cloudflare Worker)
+    const authHeader = request.headers.get('Authorization');
+    const expectedAuth = `Bearer ${process.env.CRON_SECRET_KEY}`;
+    
+    if (!process.env.CRON_SECRET_KEY || authHeader !== expectedAuth) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     // Get today's date for idempotency
     const today = new Date().toISOString().split('T')[0];
     const idempotencyKey = `daily:${today}`;
@@ -105,3 +116,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+
+
+

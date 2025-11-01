@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// posti-email required models
+model Email {
+  id                String       @id
+  to                String
+  from              String
+  subject           String
+  providerMessageId String?
+  status            EmailStatus  @default(SENT)
+  createdAt         DateTime     @default(now())
+  events            EmailEvent[]
+}
+
+model EmailEvent {
+  id        String      @id @default(cuid())
+  email     Email       @relation(fields: [emailId], references: [id])
+  emailId   String
+  type      EmailEventType
+  meta      Json?
+  createdAt DateTime     @default(now())
+}
+
+enum EmailStatus {
+  SENT
+  DELIVERED
+  BOUNCED
+  COMPLAINT
+}
+
+enum EmailEventType {
+  SENT
+  DELIVERED
+  BOUNCED
+  COMPLAINT
+  OPEN
+  CLICK
+}
+
+// Additional models for our app
+model Subscriber {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  subscribedAt DateTime @default(now())
+  isActive    Boolean  @default(true)
+  unsubscribedAt DateTime?
+  
+  @@map("subscribers")
+}

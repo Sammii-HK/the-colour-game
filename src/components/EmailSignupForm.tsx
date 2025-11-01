@@ -50,7 +50,7 @@ export default function EmailSignupForm() {
             }
           }
         } else {
-          const data = await response.json();
+          const data = await response.json() as { error?: string };
           setStatus('error');
           setMessage(data.error || 'Something went wrong. Please try again.');
         }

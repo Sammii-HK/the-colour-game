@@ -1,0 +1,11 @@
+name = "daily-css-color-cron"
+main = "src/index.ts"
+compatibility_date = "2025-11-01"
+
+# Cron schedule: 7:30 AM London time
+[triggers]
+crons = ["30 7 * * *"]
+
+# Secrets to set via CLI:
+# wrangler secret put DAILY_CSS_COLOR_API_URL
+# wrangler secret put CRON_SECRET_KEY

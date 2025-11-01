@@ -159,11 +159,28 @@ export default function ColourGame() {
       )}
 
       {/* Score */}
-      <div className="flex justify-center gap-6 text-sm text-gray-600">
+      <div className="flex justify-center gap-6 text-sm text-gray-600 mb-4">
         <div>Score: <span className="font-medium">{score}</span></div>
         <div>Streak: <span className="font-medium">{streak}</span></div>
         <div>High Score: <span className="font-medium">{highScore}</span></div>
       </div>
+      
+      {/* Share High Score */}
+      {highScore > 0 && (
+        <div className="text-center">
+          <button
+            onClick={() => {
+              const shareUrl = `${window.location.origin}/api/og/highscore?score=${highScore}&streak=${streak}`;
+              const tweetText = `I just scored ${highScore} points on the Daily CSS Color Challenge! 🎨 Can you beat my score? #dailycsscolor`;
+              const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`;
+              window.open(twitterUrl, '_blank');
+            }}
+            className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm font-medium"
+          >
+            🐦 Share High Score
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -13,14 +13,13 @@ export async function GET() {
       rgb: formatRgb(colour.rgb),
       hsl: formatHsl(colour.hsl),
       description: colour.notes || `${colour.name} - ${colour.hex}`,
-      permalink: `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/colour/${today}`,
-      image: `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/api/og?date=${today}`,
+      permalink: `${process.env.PUBLIC_SITE_URL || 'https://thecolorgame.uk'}/colour/${today}`,
+      image: `${process.env.PUBLIC_SITE_URL || 'https://thecolorgame.uk'}/api/og?date=${today}`,
       challenge: {
         title: `Today's Creative Challenge: ${colour.name}`,
         prompt: `Create something beautiful using ${colour.name}! Draw, paint, design, code, craft, or photograph - then share it with #DailyColourChallenge`,
         ideas: ["Abstract art", "Logo design", "CSS animation", "Watercolor painting", "Digital illustration", "Photography", "Crafts", "Web design"],
-        hashtag: "#DailyColourChallenge",
-        gallery: `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/gallery/${today}`
+        hashtag: "#dailycsscolor"
       }
     };
 
