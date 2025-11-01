@@ -68,14 +68,14 @@ export async function POST(request: NextRequest) {
       });
     } else {
       return NextResponse.json(
-        { success: false, error: 'Failed to send email', details: result.error },
+        { success: false, error: 'Failed to send email', details: 'Email sending failed' },
         { status: 500 }
       );
     }
   } catch (error) {
-    console.error('Error in send-daily-email:', error);
+    console.error('Error in send-daily-email:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

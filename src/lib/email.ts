@@ -4,11 +4,19 @@ import { CssColour, formatRgb, formatHsl } from './colours';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 const getSESClient = () => {
+  const region = process.env.AWS_REGION;
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  
+  if (!region || !accessKeyId || !secretAccessKey) {
+    throw new Error(`Missing AWS credentials: region=${!!region}, accessKey=${!!accessKeyId}, secretKey=${!!secretAccessKey}`);
+  }
+  
   return new SESClient({
-    region: process.env.AWS_REGION || 'us-east-1',
+    region,
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+      accessKeyId,
+      secretAccessKey,
     },
   });
 };
