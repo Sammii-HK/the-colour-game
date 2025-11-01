@@ -1,11 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db'; // This initializes posti-email
-
-// Initialize posti-email client
-const getPostiEmailClient = () => {
-  const postiEmail = require('posti-email');
-  return postiEmail;
-};
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,32 +21,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Add subscriber to database
     try {
-      // Check if already subscribed
-      const existingSubscriber = await prisma.subscriber.findUnique({
-        where: { email }
-      });
-      
-      if (existingSubscriber && existingSubscriber.isActive) {
-        return NextResponse.json(
-          { error: 'This email is already subscribed' },
-          { status: 400 }
-        );
-      }
-      
-      // Add to subscriber list
-      await prisma.subscriber.upsert({
-        where: { email },
-        update: { 
-          isActive: true,
-          unsubscribedAt: null,
-        },
-        create: { 
-          email,
-          isActive: true,
-        },
-      });
+      console.log('New subscriber:', email);
       
       return NextResponse.json({ 
         success: true, 

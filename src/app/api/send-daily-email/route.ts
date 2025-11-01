@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getTodaysColour } from '@/lib/colours';
 import { sendDailyColourEmail } from '@/lib/email';
 
-// Simple in-memory cache for preventing duplicate sends
-// In production, use Vercel KV or similar
 const sentToday = new Set<string>();
 
 export async function POST(request: NextRequest) {
@@ -39,8 +37,8 @@ export async function POST(request: NextRequest) {
     // Get today's colour
     const colour = getTodaysColour();
     
-    // Determine recipient
-    const recipient = process.env.DAILY_TO_TEST || 'test@example.com';
+    // Determine recipient - for now just use test email
+    const recipient = process.env.DAILY_TO_TEST || 'kellow.sammii@gmail.com';
     const permalink = `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/colour/${today}`;
     
     // Send the email

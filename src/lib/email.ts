@@ -1,18 +1,16 @@
 import { render } from '@react-email/components';
 import DailyColourEmail from '@/emails/DailyColourEmail';
 import { CssColour, formatRgb, formatHsl } from './colours';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
-// Initialize posti-email client
-const getPostiEmailClient = () => {
-  try {
-    // Import db to initialize posti-email if database is available
-    require('./db');
-    const { sendEmail } = require('posti-email');
-    return { sendEmail };
-  } catch (error) {
-    console.warn('posti-email initialization failed, emails may not work:', error);
-    return null;
-  }
+const getSESClient = () => {
+  return new SESClient({
+    region: process.env.AWS_REGION || 'us-east-1',
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    },
+  });
 };
 
 export interface EmailOptions {
@@ -47,22 +45,35 @@ export async function sendDailyColourEmail(options: EmailOptions) {
   const text = createPlainTextEmail(options);
   
   try {
-    const emailClient = getPostiEmailClient();
+    const sesClient = getSESClient();
     
-    if (!emailClient) {
-      throw new Error('Email client not initialized - check database and posti-email configuration');
-    }
-    
-    const result = await emailClient.sendEmail({
-      from: process.env.DAILY_FROM_EMAIL || 'daily@thecolorgame.uk',
-      to: Array.isArray(to) ? to.join(', ') : to,
-      subject,
-      html,
-      text,
+    const command = new SendEmailCommand({
+      Source: process.env.DAILY_FROM_EMAIL || 'daily@thecolorgame.uk',
+      Destination: {
+        ToAddresses: Array.isArray(to) ? to : [to],
+      },
+      Message: {
+        Subject: {
+          Data: subject,
+          Charset: 'UTF-8',
+        },
+        Body: {
+          Html: {
+            Data: html,
+            Charset: 'UTF-8',
+          },
+          Text: {
+            Data: text,
+            Charset: 'UTF-8',
+          },
+        },
+      },
     });
     
-    console.log('Email sent successfully via posti-email:', result.id);
-    return { success: true, data: result };
+    const result = await sesClient.send(command);
+    
+    console.log('Email sent successfully via AWS SES:', result.MessageId);
+    return { success: true, data: { id: result.MessageId } };
   } catch (error) {
     console.error('Failed to send email:', error);
     return { success: false, error };
