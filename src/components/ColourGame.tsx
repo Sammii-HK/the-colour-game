@@ -48,14 +48,32 @@ export default function ColourGame() {
   const [message, setMessage] = useState("");
   const [userInput, setUserInput] = useState("");
 
+  // Load high score from localStorage on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedHighScore = localStorage.getItem('dailycsscolor-highscore');
+      if (savedHighScore) {
+        setHighScore(parseInt(savedHighScore, 10));
+      }
+    }
+  }, []);
+
   useEffect(() => setOptions(generateOptions(correctColor, difficulty)), [correctColor, difficulty]);
 
   const handleGuess = (guess: string) => {
     if (guess === correctColor) {
       setMessage("Correct! 🎉");
-      setScore(score + 10);
+      const newScore = score + 10;
+      setScore(newScore);
       setStreak(streak + 1);
-      setHighScore(Math.max(highScore, score + 10));
+      
+      // Update high score and save to localStorage
+      const newHighScore = Math.max(highScore, newScore);
+      setHighScore(newHighScore);
+      
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dailycsscolor-highscore', newHighScore.toString());
+      }
     } else {
       setMessage(`Wrong! The correct answer was ${correctColor}`);
       setScore(0);
@@ -167,18 +185,39 @@ export default function ColourGame() {
       
       {/* Share High Score */}
       {highScore > 0 && (
-        <div className="text-center">
+        <div className="text-center space-y-2">
           <button
             onClick={() => {
               const shareUrl = `${window.location.origin}/api/og/highscore?score=${highScore}&streak=${streak}`;
               const tweetText = `I just scored ${highScore} points on the Daily CSS Color Challenge! 🎨 Can you beat my score? #dailycsscolor`;
               const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`;
               window.open(twitterUrl, '_blank');
+              
+              // Track share event
+              if (typeof window !== 'undefined' && 'plausible' in window) {
+                const plausible = (window as any).plausible;
+                if (typeof plausible === 'function') {
+                  plausible('High Score Share', { props: { score: highScore } });
+                }
+              }
             }}
             className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm font-medium"
           >
             🐦 Share High Score
           </button>
+          <div>
+            <button
+              onClick={() => {
+                if (confirm('Are you sure you want to reset your high score?')) {
+                  setHighScore(0);
+                  localStorage.removeItem('dailycsscolor-highscore');
+                }
+              }}
+              className="text-xs text-gray-500 hover:text-gray-700 underline"
+            >
+              Reset High Score
+            </button>
+          </div>
         </div>
       )}
     </div>
