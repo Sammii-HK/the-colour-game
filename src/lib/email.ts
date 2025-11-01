@@ -58,7 +58,7 @@ export async function sendDailyColourEmail(options: EmailOptions) {
     const command = new SendEmailCommand({
       Source: process.env.DAILY_FROM_EMAIL || 'daily@thecolorgame.uk',
       Destination: {
-        ToAddresses: Array.isArray(to) ? to : [to],
+        BccAddresses: Array.isArray(to) ? to : [to], // Use BCC for privacy
       },
       Message: {
         Subject: {
@@ -92,7 +92,7 @@ export async function sendDailyColourEmail(options: EmailOptions) {
  * Create plain text version of the email
  */
 function createPlainTextEmail(options: EmailOptions): string {
-  const { colour, date, permalink, sponsorName, sponsorUrl } = options;
+  const { colour, date, permalink, sponsorName, sponsorUrl, to } = options;
   
   let text = `Daily CSS Colour - ${date}\n\n`;
   text += `Today's colour: ${colour.name}\n`;
@@ -114,7 +114,7 @@ function createPlainTextEmail(options: EmailOptions): string {
   
   text += `---\n`;
   text += `You're receiving this because you subscribed to Daily CSS Colour.\n`;
-  text += `Unsubscribe: {{unsubscribe_url}}\n`;
+  text += `Unsubscribe: ${process.env.PUBLIC_SITE_URL}/unsubscribe?email=${encodeURIComponent(Array.isArray(to) ? to[0] : to)}\n`;
   text += `Contact: hello@thecolorgame.uk\n\n`;
   text += `Daily CSS Color\n`;
   text += `Made with ❤️ for designers and developers`;
@@ -126,7 +126,7 @@ function createPlainTextEmail(options: EmailOptions): string {
  * HTML template fallback (inline styles)
  */
 export function createHtmlEmailFallback(options: EmailOptions): string {
-  const { colour, date, permalink, sponsorName, sponsorUrl } = options;
+  const { colour, date, permalink, sponsorName, sponsorUrl, to } = options;
   
   return `
 <!DOCTYPE html>
@@ -199,7 +199,7 @@ export function createHtmlEmailFallback(options: EmailOptions): string {
                         <td style="padding: 32px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
                             <p style="margin: 8px 0; font-size: 14px; color: #6b7280;">You're receiving this because you subscribed to Daily CSS Color.</p>
                             <p style="margin: 8px 0; font-size: 14px; color: #6b7280;">
-                                <a href="{{unsubscribe_url}}" style="color: #3b82f6; text-decoration: none;">Unsubscribe</a> | 
+                                <a href="${process.env.PUBLIC_SITE_URL}/unsubscribe?email=${encodeURIComponent(Array.isArray(to) ? to[0] : to)}" style="color: #3b82f6; text-decoration: none;">Unsubscribe</a> | 
                                 <a href="mailto:hello@thecolorgame.uk" style="color: #3b82f6; text-decoration: none;">Contact</a>
                             </p>
                             <p style="margin: 16px 0 0; font-size: 12px; color: #9ca3af; line-height: 1.4;">

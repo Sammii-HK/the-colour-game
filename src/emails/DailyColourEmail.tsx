@@ -101,7 +101,7 @@ export const DailyColourEmail = ({
               You&apos;re receiving this because you subscribed to Daily CSS Colour.
             </Text>
             <Text style={footerText}>
-              <a href="{{unsubscribe_url}}" style={unsubscribeLink}>
+              <a href={`${process.env.PUBLIC_SITE_URL}/unsubscribe`} style={unsubscribeLink}>
                 Unsubscribe
               </a>{' '}
               |{' '}
