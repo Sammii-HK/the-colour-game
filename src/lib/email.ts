@@ -1,12 +1,18 @@
 import { render } from '@react-email/components';
 import DailyColourEmail from '@/emails/DailyColourEmail';
 import { CssColour, formatRgb, formatHsl } from './colours';
-import { prisma } from './db'; // This initializes posti-email
 
 // Initialize posti-email client
 const getPostiEmailClient = () => {
-  const postiEmail = require('posti-email');
-  return postiEmail;
+  try {
+    // Import db to initialize posti-email if database is available
+    require('./db');
+    const { sendEmail } = require('posti-email');
+    return { sendEmail };
+  } catch (error) {
+    console.warn('posti-email initialization failed, emails may not work:', error);
+    return null;
+  }
 };
 
 export interface EmailOptions {
@@ -41,9 +47,13 @@ export async function sendDailyColourEmail(options: EmailOptions) {
   const text = createPlainTextEmail(options);
   
   try {
-    const { sendEmail } = require('posti-email');
+    const emailClient = getPostiEmailClient();
     
-    const result = await sendEmail({
+    if (!emailClient) {
+      throw new Error('Email client not initialized - check database and posti-email configuration');
+    }
+    
+    const result = await emailClient.sendEmail({
       from: process.env.DAILY_FROM_EMAIL || 'daily@thecolorgame.uk',
       to: Array.isArray(to) ? to.join(', ') : to,
       subject,
