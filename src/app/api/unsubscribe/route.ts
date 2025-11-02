@@ -22,14 +22,30 @@ export async function POST(request: NextRequest) {
     }
     
     try {
-      // Log unsubscribe (for now, until database is working)
-      console.log('Unsubscribed:', email);
+      // Simple file-based storage for now
+      const fs = require('fs');
+      const subscribersFile = '/tmp/subscribers.json';
       
-      // TODO: Remove from database when posti-email is working
-      // await prisma.subscriber.update({
-      //   where: { email },
-      //   data: { isActive: false, unsubscribedAt: new Date() }
-      // });
+      let subscribers = [];
+      try {
+        if (fs.existsSync(subscribersFile)) {
+          const data = fs.readFileSync(subscribersFile, 'utf8');
+          subscribers = JSON.parse(data);
+        }
+      } catch (error) {
+        console.log('No subscribers file found');
+      }
+      
+      // Find and deactivate subscriber
+      const subscriber = subscribers.find((sub: any) => sub.email === email);
+      if (subscriber) {
+        subscriber.isActive = false;
+        subscriber.unsubscribedAt = new Date().toISOString();
+        
+        // Save updated list
+        fs.writeFileSync(subscribersFile, JSON.stringify(subscribers, null, 2));
+        console.log('Unsubscribed:', email);
+      }
       
       return NextResponse.json({ 
         success: true, 
