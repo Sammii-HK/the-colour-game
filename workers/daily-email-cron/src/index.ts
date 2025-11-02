@@ -7,6 +7,7 @@ export interface Env {
   // Environment variables
   DAILY_CSS_COLOR_API_URL: string; // Your main app URL
   CRON_SECRET_KEY: string; // Secret key to protect the endpoint
+  ADMIN_SECRET_KEY: string; // Admin key for list cleanup
 }
 
 export default {
@@ -14,8 +15,8 @@ export default {
     console.log('Daily CSS Color cron job triggered');
     
     try {
-      // Call your main app's email endpoint
-      const response = await fetch(`${env.DAILY_CSS_COLOR_API_URL}/api/send-daily-email`, {
+      // Send daily email
+      const emailResponse = await fetch(`${env.DAILY_CSS_COLOR_API_URL}/api/send-daily-email`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${env.CRON_SECRET_KEY}`,
@@ -24,20 +25,41 @@ export default {
         },
       });
       
-      if (response.ok) {
-        const result = await response.json();
+      if (emailResponse.ok) {
+        const result = await emailResponse.json();
         console.log('Daily email sent successfully:', result);
       } else {
-        const error = await response.text();
+        const error = await emailResponse.text();
         console.error('Failed to send daily email:', error);
-        
-        // Could add webhook notification here for failures
-        throw new Error(`Email send failed: ${response.status} ${error}`);
+        throw new Error(`Email send failed: ${emailResponse.status} ${error}`);
       }
+      
+      // Monthly list cleanup (run on 1st of each month)
+      const today = new Date().toISOString().split('T')[0];
+      if (today.endsWith('-01')) { // First day of month
+        console.log('Running monthly list cleanup...');
+        
+        const cleanupResponse = await fetch(`${env.DAILY_CSS_COLOR_API_URL}/api/admin/cleanup?days=90`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${env.ADMIN_SECRET_KEY}`,
+            'Content-Type': 'application/json',
+            'User-Agent': 'DailyCSS-Cleanup-Worker/1.0',
+          },
+        });
+        
+        if (cleanupResponse.ok) {
+          const cleanupResult = await cleanupResponse.json();
+          console.log('Monthly cleanup completed:', cleanupResult);
+        } else {
+          const cleanupError = await cleanupResponse.text();
+          console.error('Monthly cleanup failed:', cleanupError);
+          // Don't throw - email sending is more important than cleanup
+        }
+      }
+      
     } catch (error) {
       console.error('Cron job error:', error);
-      
-      // Re-throw to mark the cron job as failed in Cloudflare
       throw error;
     }
   },

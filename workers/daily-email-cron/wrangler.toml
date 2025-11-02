@@ -8,4 +8,5 @@ crons = ["30 7 * * *"]
 
 # Secrets to set via CLI:
 # wrangler secret put DAILY_CSS_COLOR_API_URL
-# wrangler secret put CRON_SECRET_KEY
+# wrangler secret put CRON_SECRET_KEY  
+# wrangler secret put ADMIN_SECRET_KEY
