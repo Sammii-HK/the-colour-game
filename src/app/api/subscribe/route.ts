@@ -22,7 +22,47 @@ export async function POST(request: NextRequest) {
     }
     
     try {
-      console.log('New subscriber:', email);
+      // Simple file-based storage for now
+      const fs = require('fs');
+      const subscribersFile = '/tmp/subscribers.json';
+      
+      let subscribers = [];
+      try {
+        if (fs.existsSync(subscribersFile)) {
+          const data = fs.readFileSync(subscribersFile, 'utf8');
+          subscribers = JSON.parse(data);
+        }
+      } catch (error) {
+        console.log('Creating new subscribers file');
+      }
+      
+      // Check if already subscribed
+      const existingSubscriber = subscribers.find((sub: any) => sub.email === email);
+      if (existingSubscriber && existingSubscriber.isActive) {
+        return NextResponse.json(
+          { error: 'This email is already subscribed' },
+          { status: 400 }
+        );
+      }
+      
+      // Add new subscriber
+      const newSubscriber = {
+        email,
+        subscribedAt: new Date().toISOString(),
+        isActive: true
+      };
+      
+      if (existingSubscriber) {
+        // Reactivate existing subscriber
+        existingSubscriber.isActive = true;
+        existingSubscriber.subscribedAt = new Date().toISOString();
+      } else {
+        subscribers.push(newSubscriber);
+      }
+      
+      // Save to file
+      fs.writeFileSync(subscribersFile, JSON.stringify(subscribers, null, 2));
+      console.log('New subscriber added:', email);
       
       return NextResponse.json({ 
         success: true, 

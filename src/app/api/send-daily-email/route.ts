@@ -37,8 +37,28 @@ export async function POST(request: NextRequest) {
     // Get today's colour
     const colour = getTodaysColour();
     
-    // Determine recipient - for now just use test email
-    const recipient = process.env.DAILY_TO_TEST || 'kellow.sammii@gmail.com';
+    // Get active subscribers from file
+    const fs = require('fs');
+    const subscribersFile = '/tmp/subscribers.json';
+    
+    let recipients: string[] = [process.env.DAILY_TO_TEST || 'kellow.sammii@gmail.com'];
+    
+    try {
+      if (fs.existsSync(subscribersFile)) {
+        const data = fs.readFileSync(subscribersFile, 'utf8');
+        const subscribers = JSON.parse(data);
+        const activeEmails = subscribers
+          .filter((sub: any) => sub.isActive)
+          .map((sub: any) => sub.email)
+          .filter((email: string) => email); // Remove any undefined emails
+        
+        if (activeEmails.length > 0) {
+          recipients = activeEmails;
+        }
+      }
+    } catch (error) {
+      console.log('Using test email only - no subscriber file found');
+    }
     const permalink = `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/colour/${today}`;
     
     // Send the email
@@ -46,7 +66,7 @@ export async function POST(request: NextRequest) {
       colour,
       date: today,
       permalink,
-      to: recipient,
+      to: recipients,
       sponsorName: sponsorName || undefined,
       sponsorUrl: sponsorUrl || undefined,
     });
@@ -64,7 +84,7 @@ export async function POST(request: NextRequest) {
         message: 'Daily email sent successfully',
         date: today,
         colour: colour.name,
-        recipient,
+        recipients: recipients.length,
       });
     } else {
       return NextResponse.json(
