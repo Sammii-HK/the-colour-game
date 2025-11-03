@@ -43,7 +43,7 @@ await sendEmail({ html, subject, to: subscribers });
 ```
 - **Idempotency protection**: In-memory cache prevents duplicate sends
 - **React Email templates**: Server-side rendering with fallback support
-- **Dual provider setup**: posti-email primary, Resend fallback
+- **Cloudflare Workers + MailChannels**: Free email delivery with global edge performance
 
 ### 4. Interactive Game Engine
 ```typescript

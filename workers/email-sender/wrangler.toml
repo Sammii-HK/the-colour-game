@@ -4,7 +4,8 @@ compatibility_date = "2024-01-01"
 
 # Configure the worker to run on your domain
 routes = [
-  { pattern = "thecolorgame.uk/api/worker-email", zone_name = "thecolorgame.uk" }
+  { pattern = "thecolorgame.uk/worker/*", zone_name = "thecolorgame.uk" },
+  { pattern = "www.thecolorgame.uk/worker/*", zone_name = "thecolorgame.uk" }
 ]
 
 # Optional: Add environment variables if needed
