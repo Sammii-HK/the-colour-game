@@ -1,24 +1,10 @@
 import { render } from '@react-email/components';
 import DailyColourEmail from '@/emails/DailyColourEmail';
 import { CssColour, formatRgb, formatHsl } from './colours';
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
-const getSESClient = () => {
-  const region = process.env.AWS_REGION;
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-  
-  if (!region || !accessKeyId || !secretAccessKey) {
-    throw new Error(`Missing AWS credentials: region=${!!region}, accessKey=${!!accessKeyId}, secretKey=${!!secretAccessKey}`);
-  }
-  
-  return new SESClient({
-    region,
-    credentials: {
-      accessKeyId,
-      secretAccessKey,
-    },
-  });
+const getWorkerEmailUrl = () => {
+  // Use your deployed Cloudflare Worker URL
+  return process.env.WORKER_EMAIL_URL || 'https://thecolorgame.uk/api/worker-email';
 };
 
 export interface EmailOptions {
@@ -31,7 +17,7 @@ export interface EmailOptions {
 }
 
 /**
- * Send daily colour email using posti-email
+ * Send daily colour email using Cloudflare Workers + MailChannels
  */
 export async function sendDailyColourEmail(options: EmailOptions) {
   const { colour, date, permalink, to, sponsorName, sponsorUrl } = options;
@@ -53,35 +39,35 @@ export async function sendDailyColourEmail(options: EmailOptions) {
   const text = createPlainTextEmail(options);
   
   try {
-    const sesClient = getSESClient();
+    const workerUrl = getWorkerEmailUrl();
+    const recipients = Array.isArray(to) ? to : [to];
     
-    const command = new SendEmailCommand({
-      Source: process.env.DAILY_FROM_EMAIL || 'daily@thecolorgame.uk',
-      Destination: {
-        BccAddresses: Array.isArray(to) ? to : [to], // Use BCC for privacy
+    const emailPayload = {
+      to: recipients,
+      from: process.env.DAILY_FROM_EMAIL || 'daily@thecolorgame.uk',
+      fromName: process.env.DAILY_FROM_NAME || 'The Colour Game',
+      subject,
+      html,
+      text,
+    };
+    
+    const response = await fetch(workerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      Message: {
-        Subject: {
-          Data: subject,
-          Charset: 'UTF-8',
-        },
-        Body: {
-          Html: {
-            Data: html,
-            Charset: 'UTF-8',
-          },
-          Text: {
-            Data: text,
-            Charset: 'UTF-8',
-          },
-        },
-      },
+      body: JSON.stringify(emailPayload),
     });
     
-    const result = await sesClient.send(command);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' })) as { error?: string };
+      throw new Error(`Worker responded with ${response.status}: ${errorData.error || 'Unknown error'}`);
+    }
     
-    console.log('Email sent successfully via AWS SES:', result.MessageId);
-    return { success: true, data: { id: result.MessageId } };
+    const result = await response.json() as { success?: boolean; data?: { id?: string } };
+    
+    console.log('Email sent successfully via Cloudflare Workers + MailChannels:', result.data?.id);
+    return { success: true, data: { id: result.data?.id || 'sent' } };
   } catch (error) {
     console.error('Failed to send email:', error);
     return { success: false, error };
