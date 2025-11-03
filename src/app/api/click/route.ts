@@ -1,8 +1,5 @@
 // app/api/click/route.ts
-import { createClickRedirectHandler } from "posti-email/next";
 import { NextRequest, NextResponse } from "next/server";
-
-const handler = createClickRedirectHandler();
 
 export async function GET(request: NextRequest) {
   try {

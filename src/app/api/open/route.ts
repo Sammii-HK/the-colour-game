@@ -1,8 +1,5 @@
 // app/api/open/route.ts
-import { createOpenPixelHandler } from "posti-email/next";
 import { NextRequest, NextResponse } from "next/server";
-
-const handler = createOpenPixelHandler();
 
 export async function GET(request: NextRequest) {
   try {
