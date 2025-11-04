@@ -6,7 +6,7 @@ A daily colour email and public API powered by CSS named colours. Get a beautifu
 
 Interactive color platform combining deterministic algorithms, automated email delivery, and social sharing. Built to showcase modern web architecture patterns and serverless automation at scale.
 
-**Stack**: Next.js 15, Vercel Edge Runtime, TypeScript, React Email, Tailwind CSS
+**Stack**: Next.js 15, Cloudflare Workers, Brevo Email API, TypeScript, React Email, Tailwind CSS
 
 ## Core Architecture
 
@@ -35,15 +35,17 @@ export async function GET(request: NextRequest) {
 - **Dynamic OG images**: 1080x1080 social sharing assets
 - **Zero cold starts**: Edge functions with instant response times
 
-### 3. Automated Email System
+### 3. Hybrid Email System
 ```typescript
-// Vercel Cron: 30 7 * * * (7:30 AM London time)
+// Multi-platform email pipeline: Cron → Next.js → Worker → Email API
 const html = await render(<DailyColourEmail colour={colour} date={date} />);
-await sendEmail({ html, subject, to: subscribers });
+const result = await fetch(workerUrl, { method: 'POST', body: emailData });
 ```
-- **Idempotency protection**: In-memory cache prevents duplicate sends
-- **React Email templates**: Server-side rendering with fallback support
-- **Cloudflare Workers + MailChannels**: Free email delivery with global edge performance
+- **Hybrid architecture**: Cloudflare Workers + Next.js + Brevo API working together
+- **Cost optimization**: Free tiers from multiple services = $0/month email delivery
+- **Global performance**: Edge processing via Cloudflare + enterprise delivery via Brevo
+- **Professional sending**: Verified domain (daily@thecolorgame.uk) with high deliverability
+- **Template rendering**: React Email components with beautiful responsive design
 
 ### 4. Interactive Game Engine
 ```typescript
@@ -80,14 +82,14 @@ Dynamic image generation with color-matched backgrounds and typography.
 
 **Deterministic over Random**: Ensures global consistency and enables permalink structure
 **Edge-First Architecture**: Leverages Vercel's global network for sub-100ms response times
-**Email Automation**: Serverless cron jobs with React components for maintainable templates
+**Hybrid Email Architecture**: Multi-platform pipeline (Cloudflare + Vercel + Brevo) achieving $0/month email costs
 **Progressive Enhancement**: Core functionality works without JavaScript, game enhances experience
 
 ## Performance Characteristics
 
 - **API Response**: <100ms globally via Edge Runtime
 - **Image Generation**: <200ms with automatic CDN caching
-- **Email Delivery**: <5s end-to-end with duplicate protection
+- **Email Delivery**: <3s end-to-end via Cloudflare Workers with global edge performance
 - **Game Interactions**: <16ms response time with local state management
 
 ## Development
@@ -96,7 +98,13 @@ Dynamic image generation with color-matched backgrounds and typography.
 npm run dev           # Development server with Turbopack
 npm run build         # Production build with static optimization
 npm test              # Jest test suite with coverage reporting
-npm run generate:today # Generate social media assets
+node test-email.js    # Test email sending via Cloudflare Worker
+
+# Cloudflare Worker commands:
+cd workers/email-sender
+wrangler deploy       # Deploy email worker
+wrangler tail         # View worker logs
+wrangler secret put BREVO_API_KEY  # Configure email API key
 ```
 
 **Test Coverage**: Core color algorithm, API endpoints, email templates
@@ -105,4 +113,4 @@ npm run generate:today # Generate social media assets
 
 ---
 
-**Technical Demonstration**: Modern full-stack application showcasing serverless automation, edge computing, deterministic algorithms, and viral growth mechanics. Production-ready with automated testing, monitoring, and deployment.
+**Technical Demonstration**: Modern full-stack application showcasing hybrid serverless architecture, edge computing, deterministic algorithms, and cost-effective email automation. Features Cloudflare Workers + Brevo integration for free, reliable email delivery at scale. Production-ready with automated testing, monitoring, and zero-cost email infrastructure.
