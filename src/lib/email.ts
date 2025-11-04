@@ -4,7 +4,7 @@ import { CssColour, formatRgb, formatHsl } from './colours';
 
 const getWorkerEmailUrl = () => {
   // Use your deployed Cloudflare Worker URL
-  return process.env.WORKER_EMAIL_URL || 'https://www.thecolorgame.uk/worker/email';
+  return process.env.WORKER_EMAIL_URL || 'https://thecolorgame-email-sender.rss-reply.workers.dev';
 };
 
 export interface EmailOptions {

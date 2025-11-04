@@ -1,5 +1,5 @@
 export interface Env {
-  // Add any environment variables you need here
+  BREVO_API_KEY?: string;
 }
 
 interface EmailRequest {
@@ -13,6 +13,7 @@ interface EmailRequest {
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, {
@@ -42,44 +43,45 @@ export default {
         });
       }
 
-      // Send email via MailChannels
-      const mailChannelsResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
+      // Send email via Brevo
+      if (!env.BREVO_API_KEY) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: 'BREVO_API_KEY not configured',
+          details: 'Please set BREVO_API_KEY environment variable'
+        }), {
+          status: 500,
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      }
+
+      const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'api-key': env.BREVO_API_KEY,
         },
         body: JSON.stringify({
-          personalizations: [
-            {
-              to: emailData.to.map(email => ({ email })),
-              dkim_domain: emailData.from.split('@')[1], // Extract domain from email
-              dkim_selector: 'mailchannels',
-            }
-          ],
-          from: {
+          sender: {
             email: emailData.from,
             name: emailData.fromName || 'The Colour Game'
           },
+          to: emailData.to.map(email => ({ email })),
           subject: emailData.subject,
-          content: [
-            {
-              type: 'text/html',
-              value: emailData.html
-            },
-            {
-              type: 'text/plain',
-              value: emailData.text || stripHtml(emailData.html)
-            }
-          ]
+          htmlContent: emailData.html,
+          textContent: emailData.text || stripHtml(emailData.html)
         })
       });
 
-      if (!mailChannelsResponse.ok) {
-        const errorText = await mailChannelsResponse.text();
-        console.error('MailChannels error:', errorText);
+      if (!brevoResponse.ok) {
+        const errorText = await brevoResponse.text();
+        console.error('Brevo error:', errorText);
         return new Response(JSON.stringify({ 
           success: false, 
-          error: 'Failed to send email',
+          error: 'Failed to send email via Brevo',
           details: errorText
         }), {
           status: 500,
@@ -90,11 +92,11 @@ export default {
         });
       }
 
-      const result = await mailChannelsResponse.json() as { id?: string };
+      const result = await brevoResponse.json() as { messageId?: string };
       
       return new Response(JSON.stringify({ 
         success: true, 
-        data: { id: result.id || 'sent' }
+        data: { id: result.messageId || 'sent' }
       }), {
         headers: { 
           'Content-Type': 'application/json',

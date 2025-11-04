@@ -2,11 +2,16 @@ name = "thecolorgame-email-sender"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
-# Configure the worker to run on your domain
-routes = [
-  { pattern = "thecolorgame.uk/worker/*", zone_name = "thecolorgame.uk" },
-  { pattern = "www.thecolorgame.uk/worker/*", zone_name = "thecolorgame.uk" }
-]
+# Ensure the worker is publicly accessible
+workers_dev = true
+
+
+# Use default workers.dev subdomain for now
+# Custom domain routes disabled due to Vercel conflict
+# routes = [
+#   { pattern = "thecolorgame.uk/worker/*", zone_name = "thecolorgame.uk" },
+#   { pattern = "www.thecolorgame.uk/worker/*", zone_name = "thecolorgame.uk" }
+# ]
 
 # Optional: Add environment variables if needed
 [env.production]

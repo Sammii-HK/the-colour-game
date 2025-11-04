@@ -4,7 +4,7 @@
 // Using built-in fetch (Node.js 18+)
 
 async function testEmail() {
-  const workerUrl = process.env.WORKER_EMAIL_URL || 'https://www.thecolorgame.uk/worker/email';
+  const workerUrl = process.env.WORKER_EMAIL_URL || 'https://thecolorgame-email-sender.rss-reply.workers.dev';
   const testEmail = process.env.TEST_EMAIL || 'your-email@example.com';
   
   console.log('🧪 Testing email sending...');
@@ -15,11 +15,11 @@ async function testEmail() {
     to: [testEmail],
     from: 'daily@thecolorgame.uk',
     fromName: 'The Colour Game',
-    subject: 'Test Email from Cloudflare Workers + MailChannels',
+    subject: 'Test Email from Cloudflare Workers + Brevo',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4F46E5;">🎨 Test Email Success!</h1>
-        <p>This email was sent via Cloudflare Workers + MailChannels.</p>
+        <p>This email was sent via Cloudflare Workers + Brevo.</p>
         <p>Your email setup is working correctly! 🎉</p>
         <hr>
         <p style="color: #666; font-size: 14px;">
@@ -30,7 +30,7 @@ async function testEmail() {
     text: `
 🎨 Test Email Success!
 
-This email was sent via Cloudflare Workers + MailChannels.
+This email was sent via Cloudflare Workers + Brevo.
 Your email setup is working correctly! 🎉
 
 ---
@@ -52,7 +52,7 @@ Sent from The Colour Game daily email service
     if (response.ok && result.success) {
       console.log('✅ Email sent successfully!');
       console.log(`📬 Message ID: ${result.data?.id || 'N/A'}`);
-      console.log('🎉 Your Cloudflare Workers + MailChannels setup is working!');
+      console.log('🎉 Your Cloudflare Workers + Brevo setup is working!');
     } else {
       console.error('❌ Email sending failed');
       console.error('Response:', result);

@@ -1,10 +1,10 @@
-# Cloudflare Workers + MailChannels Email Setup
+# Cloudflare Workers + Brevo Email Setup
 
 ## 🎉 What You Get
-- **FREE email sending** (up to 10,000 emails/day per domain)
-- **No monthly costs** - completely free tier
-- **High deliverability** via MailChannels
-- **Simple setup** - just deploy and go
+- **FREE email sending** (300 emails/day via Brevo free tier)
+- **Verified domain sending** from daily@thecolorgame.uk
+- **High deliverability** via Brevo infrastructure
+- **Professional email service** with analytics and tracking
 
 ## Prerequisites
 1. Cloudflare account (free)
