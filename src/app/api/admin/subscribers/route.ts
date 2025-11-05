@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,28 +16,23 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Simple file-based subscriber storage for now
-    const fs = require('fs');
-    const path = require('path');
-    const subscribersFile = '/tmp/subscribers.json';
-    
-    let subscribers = [];
-    try {
-      if (fs.existsSync(subscribersFile)) {
-        const data = fs.readFileSync(subscribersFile, 'utf8');
-        subscribers = JSON.parse(data);
+    // Get subscribers from database
+    const subscribers = await prisma.subscriber.findMany({
+      orderBy: {
+        subscribedAt: 'desc'
       }
-    } catch (error) {
-      console.error('Error reading subscribers file:', error);
-    }
+    });
     
     return NextResponse.json({
       success: true,
       count: subscribers.length,
-      subscribers: subscribers.map((sub: any) => ({
+      activeCount: subscribers.filter(sub => sub.isActive).length,
+      subscribers: subscribers.map(sub => ({
+        id: sub.id,
         email: sub.email,
         subscribedAt: sub.subscribedAt,
-        isActive: sub.isActive
+        isActive: sub.isActive,
+        unsubscribedAt: sub.unsubscribedAt
       }))
     });
   } catch (error) {

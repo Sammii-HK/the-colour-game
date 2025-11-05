@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTodaysColour } from '@/lib/colours';
 import { sendDailyColourEmail } from '@/lib/email';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const sentToday = new Set<string>();
 
@@ -21,43 +24,50 @@ export async function POST(request: NextRequest) {
     const today = new Date().toISOString().split('T')[0];
     const idempotencyKey = `daily:${today}`;
     
+    // Get query parameters for sponsor info and force resend
+    const { searchParams } = new URL(request.url);
+    const forceResend = searchParams.get('force') === 'true';
+    const sponsorName = searchParams.get('sponsor');
+    const sponsorUrl = searchParams.get('url');
+    
     // Check if already sent today (basic protection)
-    if (sentToday.has(idempotencyKey)) {
+    if (sentToday.has(idempotencyKey) && !forceResend) {
       return NextResponse.json(
         { message: 'Email already sent today', date: today },
         { status: 200 }
       );
     }
     
-    // Get query parameters for sponsor info
-    const { searchParams } = new URL(request.url);
-    const sponsorName = searchParams.get('sponsor');
-    const sponsorUrl = searchParams.get('url');
-    
     // Get today's colour
     const colour = getTodaysColour();
     
-    // Get active subscribers from file
-    const fs = require('fs');
-    const subscribersFile = '/tmp/subscribers.json';
-    
-    let recipients: string[] = [process.env.DAILY_TO_TEST || 'kellow.sammii@gmail.com'];
+    // Get active subscribers from database
+    let recipients: string[] = [];
     
     try {
-      if (fs.existsSync(subscribersFile)) {
-        const data = fs.readFileSync(subscribersFile, 'utf8');
-        const subscribers = JSON.parse(data);
-        const activeEmails = subscribers
-          .filter((sub: any) => sub.isActive)
-          .map((sub: any) => sub.email)
-          .filter((email: string) => email); // Remove any undefined emails
+      const activeSubscribers = await prisma.subscriber.findMany({
+        where: { isActive: true },
+        select: { email: true }
+      });
+      
+      if (activeSubscribers.length > 0) {
+        recipients = activeSubscribers.map(sub => sub.email);
+        console.log(`Found ${recipients.length} active subscribers`);
+      } else {
+        // Fallback to test emails from environment variable
+        const defaultEmails = (process.env.DAILY_TO_TEST || 'kellow.sammii@gmail.com')
+          .split(',')
+          .map(email => email.trim())
+          .filter(email => email);
         
-        if (activeEmails.length > 0) {
-          recipients = activeEmails;
-        }
+        recipients = defaultEmails;
+        console.log(`No subscribers found, using test emails: ${recipients.length}`);
       }
     } catch (error) {
-      console.log('Using test email only - no subscriber file found');
+      console.error('Error fetching subscribers:', error);
+      // Fallback to test email
+      recipients = [process.env.DAILY_TO_TEST || 'kellow.sammii@gmail.com'];
+      console.log('Database error, using fallback email');
     }
     const permalink = `${process.env.PUBLIC_SITE_URL || 'http://localhost:3000'}/colour/${today}`;
     

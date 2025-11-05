@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,22 +25,11 @@ export async function POST(request: NextRequest) {
     }
     
     try {
-      // Simple file-based storage for now
-      const fs = require('fs');
-      const subscribersFile = '/tmp/subscribers.json';
+      // Check if already subscribed using Prisma
+      const existingSubscriber = await prisma.subscriber.findUnique({
+        where: { email }
+      });
       
-      let subscribers = [];
-      try {
-        if (fs.existsSync(subscribersFile)) {
-          const data = fs.readFileSync(subscribersFile, 'utf8');
-          subscribers = JSON.parse(data);
-        }
-      } catch (error) {
-        console.log('Creating new subscribers file');
-      }
-      
-      // Check if already subscribed
-      const existingSubscriber = subscribers.find((sub: any) => sub.email === email);
       if (existingSubscriber && existingSubscriber.isActive) {
         return NextResponse.json(
           { error: 'This email is already subscribed' },
@@ -45,24 +37,27 @@ export async function POST(request: NextRequest) {
         );
       }
       
-      // Add new subscriber
-      const newSubscriber = {
-        email,
-        subscribedAt: new Date().toISOString(),
-        isActive: true
-      };
-      
       if (existingSubscriber) {
         // Reactivate existing subscriber
-        existingSubscriber.isActive = true;
-        existingSubscriber.subscribedAt = new Date().toISOString();
+        await prisma.subscriber.update({
+          where: { email },
+          data: {
+            isActive: true,
+            subscribedAt: new Date(),
+            unsubscribedAt: null
+          }
+        });
+        console.log('Reactivated subscriber:', email);
       } else {
-        subscribers.push(newSubscriber);
+        // Add new subscriber
+        await prisma.subscriber.create({
+          data: {
+            email,
+            isActive: true
+          }
+        });
+        console.log('New subscriber added:', email);
       }
-      
-      // Save to file
-      fs.writeFileSync(subscribersFile, JSON.stringify(subscribers, null, 2));
-      console.log('New subscriber added:', email);
       
       return NextResponse.json({ 
         success: true, 

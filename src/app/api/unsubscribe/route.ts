@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,28 +25,19 @@ export async function POST(request: NextRequest) {
     }
     
     try {
-      // Simple file-based storage for now
-      const fs = require('fs');
-      const subscribersFile = '/tmp/subscribers.json';
+      // Find and deactivate subscriber in database
+      const subscriber = await prisma.subscriber.findUnique({
+        where: { email }
+      });
       
-      let subscribers = [];
-      try {
-        if (fs.existsSync(subscribersFile)) {
-          const data = fs.readFileSync(subscribersFile, 'utf8');
-          subscribers = JSON.parse(data);
-        }
-      } catch (error) {
-        console.log('No subscribers file found');
-      }
-      
-      // Find and deactivate subscriber
-      const subscriber = subscribers.find((sub: any) => sub.email === email);
       if (subscriber) {
-        subscriber.isActive = false;
-        subscriber.unsubscribedAt = new Date().toISOString();
-        
-        // Save updated list
-        fs.writeFileSync(subscribersFile, JSON.stringify(subscribers, null, 2));
+        await prisma.subscriber.update({
+          where: { email },
+          data: {
+            isActive: false,
+            unsubscribedAt: new Date()
+          }
+        });
         console.log('Unsubscribed:', email);
       }
       
