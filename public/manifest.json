@@ -1,0 +1,66 @@
+{
+  "name": "Daily CSS Colour - Free Color Palette Generator",
+  "short_name": "CSS Colours",
+  "description": "Get beautiful CSS colors delivered daily. Free color palette generator with hex codes, RGB values, and design inspiration.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["design", "productivity", "developer", "education"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180", 
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today's Color",
+      "short_name": "Today",
+      "description": "View today's featured CSS color",
+      "url": "/",
+      "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Color Game",
+      "short_name": "Game", 
+      "description": "Play the daily color guessing game",
+      "url": "/",
+      "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Subscribe",
+      "short_name": "Subscribe",
+      "description": "Subscribe to daily color emails",
+      "url": "/#subscribe",
+      "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/api/og",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Daily CSS Colour homepage with today's featured color"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
