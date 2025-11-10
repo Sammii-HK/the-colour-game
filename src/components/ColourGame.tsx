@@ -40,8 +40,8 @@ const generateOptions = (correctColor: string, difficulty: Difficulty): string[]
 
 export default function ColourGame() {
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
-  const [correctColor, setCorrectColor] = useState(getRandomColorFromGroup(getRandomGroup()));
-  const [options, setOptions] = useState(generateOptions(correctColor, difficulty));
+  const [correctColor, setCorrectColor] = useState<string>("");
+  const [options, setOptions] = useState<string[]>([]);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [highScore, setHighScore] = useState(0);
