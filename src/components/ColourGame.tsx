@@ -103,33 +103,48 @@ export default function ColourGame() {
     }, 1500);
   };
 
+  const getDifficultyColor = (diff: Difficulty) => {
+    switch (diff) {
+      case 'easy': return { bg: '#10b981', hover: '#059669' }; // Green
+      case 'medium': return { bg: '#f59e0b', hover: '#d97706' }; // Orange  
+      case 'hard': return { bg: '#ef4444', hover: '#dc2626' }; // Red
+    }
+  };
+
   return (
     <div className="text-center">
-      <h3 className="text-xl font-semibold text-gray-900 mb-4">Guess the CSS Color</h3>
+      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Guess the CSS Color</h3>
       
       {/* Difficulty Selector */}
       <div className="mb-6">
-        <p className="text-sm text-gray-600 mb-2">Difficulty: {difficulty.toUpperCase()}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Difficulty: {difficulty.toUpperCase()}</p>
         <div className="flex justify-center gap-2">
-          {(['easy', 'medium', 'hard'] as Difficulty[]).map((diff) => (
-            <button
-              key={diff}
-              onClick={() => setDifficulty(diff)}
-              className={`px-3 py-1 rounded-md text-sm font-medium ${
-                difficulty === diff
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              {diff.charAt(0).toUpperCase() + diff.slice(1)}
-            </button>
-          ))}
+          {(['easy', 'medium', 'hard'] as Difficulty[]).map((diff) => {
+            const colors = getDifficultyColor(diff);
+            return (
+              <button
+                key={diff}
+                onClick={() => setDifficulty(diff)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2 cursor-pointer ${
+                  difficulty === diff
+                    ? 'bg-white dark:bg-neutral-800 shadow-lg'
+                    : 'bg-transparent hover:bg-gray-50 dark:hover:bg-neutral-700'
+                }`}
+                style={{ 
+                  borderColor: difficulty === diff ? colors.bg : '#d1d5db',
+                  color: difficulty === diff ? colors.bg : undefined
+                }}
+              >
+                {diff.charAt(0).toUpperCase() + diff.slice(1)}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Color Swatch */}
       <div 
-        className="w-32 h-32 mx-auto mb-6 rounded-lg border-4 border-gray-300 shadow-lg"
+        className="w-32 h-32 mx-auto mb-6 rounded-lg border-4 border-gray-300 dark:border-neutral-600 shadow-lg"
         style={{ backgroundColor: correctColor }}
       />
 
@@ -141,12 +156,12 @@ export default function ColourGame() {
             value={userInput} 
             onChange={(e) => setUserInput(e.target.value.toLowerCase())} 
             onKeyPress={(e) => e.key === 'Enter' && handleGuess(userInput)}
-            className="block w-full max-w-xs mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 mb-3"
+            className="block w-full max-w-xs mx-auto px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-neutral-400 focus:border-gray-500 dark:focus:border-neutral-400 mb-3"
             placeholder="Type the color name..."
           />
           <button 
             onClick={() => handleGuess(userInput)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-6 py-2 rounded-lg font-medium transition-all duration-200 bg-gray-600 dark:bg-gray-400 text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             Submit
           </button>
@@ -158,7 +173,7 @@ export default function ColourGame() {
               <button 
                 key={color} 
                 onClick={() => handleGuess(color)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-neutral-500 transition-all duration-200"
               >
                 {color}
               </button>
@@ -170,17 +185,17 @@ export default function ColourGame() {
       {/* Message */}
       {message && (
         <div className={`text-lg font-medium mb-4 ${
-          message.includes('Correct') ? 'text-green-600' : 'text-red-600'
+          message.includes('Correct') ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
         }`}>
           {message}
         </div>
       )}
 
       {/* Score */}
-      <div className="flex justify-center gap-6 text-sm text-gray-600 mb-4">
-        <div>Score: <span className="font-medium">{score}</span></div>
-        <div>Streak: <span className="font-medium">{streak}</span></div>
-        <div>High Score: <span className="font-medium">{highScore}</span></div>
+      <div className="flex justify-center gap-6 text-sm text-gray-600 dark:text-gray-300 mb-4">
+        <div>Score: <span className="font-medium text-gray-900 dark:text-white">{score}</span></div>
+        <div>Streak: <span className="font-medium text-gray-900 dark:text-white">{streak}</span></div>
+        <div>High Score: <span className="font-medium text-gray-900 dark:text-white">{highScore}</span></div>
       </div>
       
       {/* Share High Score */}

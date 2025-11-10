@@ -7,27 +7,39 @@ export default function HomePage() {
   const todaysColour = getTodaysColour();
   const today = new Date().toISOString().split('T')[0];
   
+  // Calculate if color is light or dark for better contrast
+  const isLightColor = (hex: string) => {
+    const rgb = parseInt(hex.slice(1), 16);
+    const r = (rgb >> 16) & 0xff;
+    const g = (rgb >> 8) & 0xff; 
+    const b = (rgb >> 0) & 0xff;
+    const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+    return luminance > 128;
+  };
+
+  const isLight = isLightColor(todaysColour.hex);
+  
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-900">
       {/* Hero Section - Color Game */}
-      <div className="bg-white">
+      <div className="bg-white dark:bg-neutral-800">
         <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
               Daily CSS Color
             </h1>
-            <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+            <p className="mt-3 max-w-md mx-auto text-base text-gray-500 dark:text-gray-300 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
               Test your CSS color knowledge, discover new colors daily, and join the creative community!
             </p>
           </div>
           
           {/* Color Game - Now the main attraction */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-lg p-8 mb-8">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-700 dark:to-neutral-600 rounded-xl shadow-lg p-8 mb-8">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 🎮 CSS Color Challenge
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 How well do you know your CSS colors? Test your skills and beat your high score!
               </p>
             </div>
@@ -37,11 +49,11 @@ export default function HomePage() {
       </div>
 
       {/* Today's Color - Now secondary */}
-      <div className="bg-gray-50">
+      <div className="bg-gray-50 dark:bg-neutral-900">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg overflow-hidden">
             <div className="text-center py-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 Today&apos;s Featured Color
               </h2>
               <div className="flex justify-center mb-6">
@@ -50,32 +62,37 @@ export default function HomePage() {
                   style={{ backgroundColor: todaysColour.hex }}
                 />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {todaysColour.name}
               </h3>
-              <p className="text-lg font-mono text-gray-600 mb-4">
+              <p className="text-lg font-mono text-gray-600 dark:text-gray-300 mb-4">
                 {todaysColour.hex}
               </p>
               {todaysColour.notes && (
-                <p className="text-gray-700 max-w-md mx-auto mb-6 text-sm">
+                <p className="text-gray-700 dark:text-gray-300 max-w-md mx-auto mb-6 text-sm">
                   {todaysColour.notes}
                 </p>
               )}
               
               {/* Creative Prompt */}
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 max-w-lg mx-auto mb-6">
-                <h4 className="font-semibold text-gray-900 mb-2">🎨 Create & Share</h4>
-                <p className="text-gray-700 text-sm mb-3">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-neutral-700 dark:to-neutral-600 rounded-lg p-4 max-w-lg mx-auto mb-6 border border-gray-200 dark:border-neutral-600">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">🎨 Create & Share</h4>
+                <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
                   Make something beautiful with {todaysColour.name} and share it with <span className="font-mono font-semibold">#dailycsscolor</span>
                 </p>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   💡 Ideas: Digital art • Logo design • CSS animations • Photography • Crafts
                 </p>
               </div>
               
               <Link
                 href={`/colour/${today}`}
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm transition-all duration-200 hover:opacity-90"
+                style={{ 
+                  backgroundColor: todaysColour.hex,
+                  color: isLight ? '#1f2937' : '#ffffff',
+                  boxShadow: `0 4px 15px ${todaysColour.hex}40`
+                }}
               >
                 Get Color Values & CSS
               </Link>
@@ -85,19 +102,19 @@ export default function HomePage() {
       </div>
 
       {/* Email Signup */}
-      <div className="bg-blue-50">
+      <div className="bg-gray-50 dark:bg-neutral-800">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-extrabold text-gray-900">
+            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
               Join the Creative Community
             </h2>
-            <p className="mt-4 text-lg text-gray-600">
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
               Get daily color challenges delivered to your inbox every morning. Create art, share your work, and discover what others make with the same color.
             </p>
             <div className="mt-8">
-              <EmailSignupForm />
+              <EmailSignupForm todaysColor={todaysColour.hex} isLightColor={isLight} />
             </div>
-            <p className="mt-4 text-sm text-gray-500">
+            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
               Join 1000+ artists and designers exploring color creativity together
             </p>
           </div>
@@ -106,7 +123,7 @@ export default function HomePage() {
 
       {/* Community Call-to-Action */}
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-8 text-center text-white">
+        <div className="bg-gradient-to-r from-gray-800 to-gray-700 dark:from-neutral-700 dark:to-neutral-600 rounded-xl p-8 text-center text-white border border-gray-200 dark:border-neutral-600">
           <h2 className="text-3xl font-bold mb-4">Join the Creative Community</h2>
           <p className="text-xl mb-6 opacity-90">
             Share your high scores and daily color creations with <span className="font-mono font-bold">#dailycsscolor</span>

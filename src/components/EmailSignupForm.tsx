@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 
-export default function EmailSignupForm() {
+interface EmailSignupFormProps {
+  todaysColor?: string;
+  isLightColor?: boolean;
+}
+
+export default function EmailSignupForm({ todaysColor, isLightColor }: EmailSignupFormProps) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
@@ -75,14 +80,19 @@ export default function EmailSignupForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
-            className="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full px-4 py-3 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-neutral-400 focus:border-gray-500 dark:focus:border-neutral-400"
             disabled={status === 'loading'}
           />
         </div>
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg transition-all duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            backgroundColor: todaysColor || '#6b7280',
+            color: (todaysColor && isLightColor) ? '#1f2937' : '#ffffff',
+            boxShadow: todaysColor ? `0 4px 15px ${todaysColor}40` : undefined
+          }}
         >
           {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
         </button>

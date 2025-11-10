@@ -11,9 +11,9 @@ export async function POST(request: NextRequest) {
   try {
     // Verify request is from authorized source (Cloudflare Worker)
     const authHeader = request.headers.get('Authorization');
-    const expectedAuth = `Bearer ${process.env.CRON_SECRET_KEY}`;
+    const expectedAuth = `Bearer ${process.env.CRON_SECRET_KEY || process.env.CRON_SECRET}`;
     
-    if (!process.env.CRON_SECRET_KEY || authHeader !== expectedAuth) {
+    if (!(process.env.CRON_SECRET_KEY || process.env.CRON_SECRET) || authHeader !== expectedAuth) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

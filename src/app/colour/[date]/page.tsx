@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { getColourForDate, formatRgb, formatHsl } from '@/lib/colours';
 import CopyButton from '@/components/CopyButton';
 
@@ -77,29 +76,53 @@ export default async function ColourPage({ params }: PageProps) {
     });
   };
   
+  // Calculate if color is light or dark for better contrast
+  const isLightColor = (hex: string) => {
+    const rgb = parseInt(hex.slice(1), 16);
+    const r = (rgb >> 16) & 0xff;
+    const g = (rgb >> 8) & 0xff; 
+    const b = (rgb >> 0) & 0xff;
+    const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+    return luminance > 128;
+  };
+
+  const isLight = isLightColor(colour.hex);
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Daily CSS Colour
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             {formatDate(date)}
           </p>
         </div>
         
         {/* Main Content */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg overflow-hidden">
           {/* Hero Swatch */}
           <div className="h-64 sm:h-80 relative" style={{ backgroundColor: colour.hex }}>
-            <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+            <div className={`absolute inset-0 flex items-center justify-center ${
+              isLight 
+                ? 'bg-gradient-to-b from-black/60 via-black/40 to-black/60' 
+                : 'bg-gradient-to-b from-black/30 via-black/20 to-black/30'
+            }`}>
               <div className="text-center">
-                <h2 className="text-4xl sm:text-5xl font-bold text-white mb-2 drop-shadow-lg">
+                <h2 className={`text-4xl sm:text-5xl font-bold mb-2 ${
+                  isLight 
+                    ? 'text-white drop-shadow-xl' 
+                    : 'text-white drop-shadow-lg'
+                }`}>
                   {colour.name}
                 </h2>
-                <p className="text-xl sm:text-2xl text-white font-mono drop-shadow-lg">
+                <p className={`text-xl sm:text-2xl font-mono ${
+                  isLight 
+                    ? 'text-gray-100 drop-shadow-xl' 
+                    : 'text-white drop-shadow-lg'
+                }`}>
                   {colour.hex}
                 </p>
               </div>
@@ -107,35 +130,43 @@ export default async function ColourPage({ params }: PageProps) {
           </div>
           
           {/* Colour Details */}
-          <div className="p-6 sm:p-8">
+          <div className="p-6 sm:p-8 bg-white dark:bg-neutral-800">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Left Column - Values */}
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                   Colour Values
                 </h3>
                 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-neutral-700 rounded-lg border border-gray-200 dark:border-neutral-600">
                     <div>
-                      <span className="text-sm font-medium text-gray-500">HEX</span>
-                      <p className="font-mono text-lg">{colour.hex}</p>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">CSS COLOR</span>
+                      <p className="font-mono text-lg font-bold text-gray-900 dark:text-white">{colour.name.toLowerCase()}</p>
+                    </div>
+                    <CopyButton text={colour.name.toLowerCase()} />
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-neutral-700 rounded-lg border border-gray-200 dark:border-neutral-600">
+                    <div>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">HEX</span>
+                      <p className="font-mono text-lg font-bold text-gray-900 dark:text-white">{colour.hex}</p>
                     </div>
                     <CopyButton text={colour.hex} />
                   </div>
                   
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-neutral-700 rounded-lg border border-gray-200 dark:border-neutral-600">
                     <div>
-                      <span className="text-sm font-medium text-gray-500">RGB</span>
-                      <p className="font-mono text-lg">{formatRgb(colour.rgb)}</p>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">RGB</span>
+                      <p className="font-mono text-lg font-bold text-gray-900 dark:text-white">{formatRgb(colour.rgb)}</p>
                     </div>
                     <CopyButton text={formatRgb(colour.rgb)} />
                   </div>
                   
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-neutral-700 rounded-lg border border-gray-200 dark:border-neutral-600">
                     <div>
-                      <span className="text-sm font-medium text-gray-500">HSL</span>
-                      <p className="font-mono text-lg">{formatHsl(colour.hsl)}</p>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">HSL</span>
+                      <p className="font-mono text-lg font-bold text-gray-900 dark:text-white">{formatHsl(colour.hsl)}</p>
                     </div>
                     <CopyButton text={formatHsl(colour.hsl)} />
                   </div>
@@ -143,16 +174,16 @@ export default async function ColourPage({ params }: PageProps) {
                 
                 {/* CSS Variables */}
                 <div className="mt-6">
-                  <h4 className="text-lg font-medium text-gray-900 mb-3">
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
                     CSS Variables
                   </h4>
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <code className="text-sm">--color-primary: {colour.hex};</code>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-neutral-700 rounded-lg border border-gray-200 dark:border-neutral-600">
+                      <code className="text-sm text-gray-800 dark:text-gray-200">--color-primary: {colour.hex};</code>
                       <CopyButton text={`--color-primary: ${colour.hex};`} />
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <code className="text-sm">--color-primary-rgb: {colour.rgb.join(', ')};</code>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-neutral-700 rounded-lg border border-gray-200 dark:border-neutral-600">
+                      <code className="text-sm text-gray-800 dark:text-gray-200">--color-primary-rgb: {colour.rgb.join(', ')};</code>
                       <CopyButton text={`--color-primary-rgb: ${colour.rgb.join(', ')};`} />
                     </div>
                   </div>
@@ -161,24 +192,24 @@ export default async function ColourPage({ params }: PageProps) {
               
               {/* Right Column - Info */}
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                   About This Colour
                 </h3>
                 
                 {colour.notes && (
-                  <p className="text-gray-700 leading-relaxed mb-6">
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                     {colour.notes}
                   </p>
                 )}
                 
                 {colour.keywords && colour.keywords.length > 0 && (
                   <div className="mb-6">
-                    <h4 className="text-sm font-medium text-gray-500 mb-2">Keywords</h4>
+                    <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Keywords</h4>
                     <div className="flex flex-wrap gap-2">
                       {colour.keywords.map((keyword) => (
                         <span
                           key={keyword}
-                          className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded"
+                          className="px-3 py-1 bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 text-sm rounded-full border border-gray-200 dark:border-neutral-600"
                         >
                           {keyword}
                         </span>
@@ -188,21 +219,37 @@ export default async function ColourPage({ params }: PageProps) {
                 )}
                 
                 {/* Social Image */}
-                <div className="border rounded-lg p-4 bg-gray-50">
-                  <h4 className="text-sm font-medium text-gray-500 mb-3">
+                <div className="border border-gray-200 dark:border-neutral-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-700">
+                  <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">
                     Social Image
                   </h4>
-                  <Image
-                    src={imageUrl}
-                    alt={`${colour.name} colour swatch`}
-                    width={128}
-                    height={128}
-                    className="w-32 h-32 rounded-lg border-2 border-gray-200 mb-3"
-                  />
+                  <div className="w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-neutral-600 mb-3 overflow-hidden">
+                    <img
+                      src={imageUrl}
+                      alt={`${colour.name} colour swatch`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to a simple color swatch if OG image fails
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'block';
+                      }}
+                    />
+                    <div 
+                      className="w-full h-full flex items-center justify-center text-white font-bold text-sm"
+                      style={{ 
+                        backgroundColor: colour.hex,
+                        display: 'none'
+                      }}
+                    >
+                      {colour.name}
+                    </div>
+                  </div>
                   <a
                     href={imageUrl}
                     download={`daily-css-colour-${date}.png`}
-                    className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-600"
                   >
                     Download Image
                   </a>
@@ -216,9 +263,14 @@ export default async function ColourPage({ params }: PageProps) {
         <div className="mt-8 text-center">
           <Link
             href="/"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            className={`inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium transition-all duration-200 hover:opacity-90`}
+            style={{ 
+              backgroundColor: colour.hex,
+              color: isLight ? '#1f2937' : '#ffffff', // Dark text for light colors, white text for dark colors
+              boxShadow: `0 4px 15px ${colour.hex}40`
+            }}
           >
-            ← Back to Home
+            Back to Home
           </Link>
         </div>
       </div>

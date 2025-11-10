@@ -94,9 +94,22 @@ export default function RootLayout({
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
   
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <head>
         <StructuredData />
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            // Dark mode detection and application
+            try {
+              if (localStorage.getItem('color-scheme') === 'dark' || 
+                  (!localStorage.getItem('color-scheme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+              } else {
+                document.documentElement.classList.remove('dark');
+              }
+            } catch (e) {}
+          `
+        }} />
         {plausibleDomain && (
           <Script
             defer
@@ -106,9 +119,10 @@ export default function RootLayout({
         )}
         <link rel="manifest" href="/manifest.json" />
         <link rel="canonical" href="https://thecolorgame.uk" />
+        <meta name="color-scheme" content="light dark" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-neutral-900 text-gray-900 dark:text-gray-100`}
       >
         {children}
       </body>
