@@ -1,7 +1,5 @@
-import { getTodaysColour } from '@/lib/colours';
-
 export default function StructuredData() {
-  const todaysColour = getTodaysColour();
+  // Use static data for build time - no need for dynamic color in SEO markup
   const today = new Date().toISOString().split('T')[0];
 
   const structuredData = {
@@ -63,10 +61,10 @@ export default function StructuredData() {
         ]
       },
       {
-        "@type": "Article",
+        "@type": "Article", 
         "@id": `https://thecolorgame.uk/colour/${today}/#article`,
-        "headline": `Today's CSS Color: ${todaysColour.name} ${todaysColour.hex}`,
-        "description": `Discover ${todaysColour.name} (${todaysColour.hex}) - today's featured CSS color with RGB and HSL values for web design inspiration.`,
+        "headline": "Daily CSS Color - Design Inspiration and Color Values",
+        "description": "Discover beautiful CSS colors with hex codes, RGB and HSL values for web design inspiration.",
         "image": `https://thecolorgame.uk/api/og?date=${today}`,
         "datePublished": `${today}T07:30:00Z`,
         "dateModified": `${today}T07:30:00Z`,
@@ -81,11 +79,6 @@ export default function StructuredData() {
         "mainEntityOfPage": {
           "@type": "WebPage",
           "@id": `https://thecolorgame.uk/colour/${today}/`
-        },
-        "about": {
-          "@type": "Thing",
-          "name": `CSS Color ${todaysColour.name}`,
-          "description": `${todaysColour.name} is a CSS named color with hex value ${todaysColour.hex}`
         }
       },
       {

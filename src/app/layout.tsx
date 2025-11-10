@@ -96,7 +96,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <StructuredData />
+        {/* <StructuredData /> - Temporarily disabled for build debugging */}
         <script dangerouslySetInnerHTML={{
           __html: `
             // Dark mode detection and application
