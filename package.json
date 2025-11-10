@@ -17,7 +17,7 @@
     "db:migrate": "prisma migrate dev --name init",
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate || true"
+    "postinstall": "prisma generate --no-engine || true"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
