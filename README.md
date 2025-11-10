@@ -1,6 +1,8 @@
 # Daily CSS Color
 
-A daily colour email and public API powered by CSS named colours. Get a beautiful colour delivered to your inbox every morning at 7:30 AM London time.
+A daily colour email and public API powered by CSS named colours. Get daily colour inspiration delivered to your inbox every morning.
+
+<img width="1708" height="980" alt="Screenshot 2025-10-31 at 13 55 54" src="https://github.com/user-attachments/assets/d0e8f6f5-9f72-478c-a38b-327c3298d4d7" />
 
 ## Technical Overview
 
