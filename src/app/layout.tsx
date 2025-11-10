@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
-import StructuredData from "@/components/StructuredData";
+// import StructuredData from "@/components/StructuredData";
+import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -96,20 +97,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        {/* <StructuredData /> - Temporarily disabled for build debugging */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            // Dark mode detection and application
-            try {
-              if (localStorage.getItem('color-scheme') === 'dark' || 
-                  (!localStorage.getItem('color-scheme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-              } else {
-                document.documentElement.classList.remove('dark');
-              }
-            } catch (e) {}
-          `
-        }} />
+        
+        {/* <StructuredData /> */}
         {plausibleDomain && (
           <Script
             defer
@@ -124,6 +113,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-neutral-900 text-gray-900 dark:text-gray-100`}
       >
+        <ThemeProvider />
         {children}
       </body>
     </html>
