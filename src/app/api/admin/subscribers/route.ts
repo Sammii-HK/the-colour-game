@@ -23,19 +23,19 @@ export async function GET(request: NextRequest) {
           subscribedAt: 'desc'
         }
       });
-      
-      return NextResponse.json({
-        success: true,
-        count: subscribers.length,
+    
+    return NextResponse.json({
+      success: true,
+      count: subscribers.length,
         activeCount: subscribers.filter(sub => sub.isActive).length,
         subscribers: subscribers.map(sub => ({
           id: sub.id,
-          email: sub.email,
-          subscribedAt: sub.subscribedAt,
+        email: sub.email,
+        subscribedAt: sub.subscribedAt,
           isActive: sub.isActive,
           unsubscribedAt: sub.unsubscribedAt
-        }))
-      });
+      }))
+    });
     } catch (dbError) {
       console.log('Database error, using fallback:', dbError);
       // Fallback for development

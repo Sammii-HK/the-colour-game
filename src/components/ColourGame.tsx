@@ -48,9 +48,15 @@ export default function ColourGame() {
   const [message, setMessage] = useState("");
   const [userInput, setUserInput] = useState("");
 
-  // Load high score from localStorage on component mount
+  // Initialize game and load high score on client side only
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Set initial color and options on client side to avoid hydration mismatch
+      const initialColor = getRandomColorFromGroup(getRandomGroup());
+      setCorrectColor(initialColor);
+      setOptions(generateOptions(initialColor, difficulty));
+      
+      // Load high score from localStorage
       const savedHighScore = localStorage.getItem('dailycsscolor-highscore');
       if (savedHighScore) {
         setHighScore(parseInt(savedHighScore, 10));
@@ -58,7 +64,11 @@ export default function ColourGame() {
     }
   }, []);
 
-  useEffect(() => setOptions(generateOptions(correctColor, difficulty)), [correctColor, difficulty]);
+  useEffect(() => {
+    if (correctColor) {
+      setOptions(generateOptions(correctColor, difficulty));
+    }
+  }, [correctColor, difficulty]);
 
   const handleGuess = (guess: string) => {
     if (guess === correctColor) {
@@ -145,11 +155,11 @@ export default function ColourGame() {
       {/* Color Swatch */}
       <div 
         className="w-32 h-32 mx-auto mb-6 rounded-lg border-4 border-gray-300 dark:border-neutral-600 shadow-lg"
-        style={{ backgroundColor: correctColor }}
+        style={{ backgroundColor: correctColor || '#f3f4f6' }}
       />
 
-      {/* Game Interface */}
-      {difficulty === "hard" ? (
+      {/* Game Interface - Only show when color is loaded */}
+      {correctColor && (difficulty === "hard" ? (
         <div className="mb-6">
           <input 
             type="text" 
@@ -180,7 +190,7 @@ export default function ColourGame() {
             ))}
           </div>
         </div>
-      )}
+      ))}
 
       {/* Message */}
       {message && (

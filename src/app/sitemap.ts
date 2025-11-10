@@ -3,9 +3,9 @@ import { MetadataRoute } from 'next';
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://thecolorgame.uk';
   
-  // Generate URLs for the last 5 days of colors (reduced for testing)
+  // Generate URLs for the last 7 days of colors
   const colorPages = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 7; i++) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     const dateString = date.toISOString().split('T')[0];

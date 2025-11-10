@@ -87,7 +87,7 @@ export default async function ColourPage({ params }: PageProps) {
   };
 
   const isLight = isLightColor(colour.hex);
-
+  
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -225,8 +225,8 @@ export default async function ColourPage({ params }: PageProps) {
                   </h4>
                   <div className="w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-neutral-600 mb-3 overflow-hidden">
                     <img
-                      src={imageUrl}
-                      alt={`${colour.name} colour swatch`}
+                    src={imageUrl}
+                    alt={`${colour.name} colour swatch`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         // Fallback to a simple color swatch if OG image fails

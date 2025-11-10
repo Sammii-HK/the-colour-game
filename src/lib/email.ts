@@ -55,7 +55,7 @@ export async function sendDailyColourEmail(options: EmailOptions) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-      },
+        },
       body: JSON.stringify(emailPayload),
     });
     

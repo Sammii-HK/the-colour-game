@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
             isActive: true
           }
         });
-        console.log('New subscriber added:', email);
+      console.log('New subscriber added:', email);
       }
       
       return NextResponse.json({ 
