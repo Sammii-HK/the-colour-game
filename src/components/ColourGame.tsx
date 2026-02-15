@@ -29,6 +29,37 @@ const isInSameGroup = (color1: string, color2: string): boolean => {
   return false;
 };
 
+// Date helpers for daily streak
+const formatDateObj = (d: Date): string =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+const getTodayString = (): string => formatDateObj(new Date());
+
+const calculateStreak = (history: string[]): number => {
+  if (history.length === 0) return 0;
+  const historySet = new Set(history);
+  if (!historySet.has(getTodayString())) return 0;
+  let streak = 1;
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  while (historySet.has(formatDateObj(d))) {
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+};
+
+const getLast30Days = (): string[] => {
+  const days: string[] = [];
+  const d = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const day = new Date(d);
+    day.setDate(day.getDate() - i);
+    days.push(formatDateObj(day));
+  }
+  return days;
+};
+
 const getRandomGroup = (): ColorGroup => Object.keys(COLOR_GROUPS)[Math.floor(Math.random() * Object.keys(COLOR_GROUPS).length)] as ColorGroup;
 const getRandomColorFromGroup = (group: ColorGroup): string => COLOR_GROUPS[group][Math.floor(Math.random() * COLOR_GROUPS[group].length)];
 
@@ -66,7 +97,12 @@ export default function ColourGame() {
     isValidColor: boolean;
   } | null>(null);
 
-  // Initialize game and load high score on client side only
+  // Daily streak
+  const [dailyStreak, setDailyStreak] = useState(0);
+  const [playHistory, setPlayHistory] = useState<string[]>([]);
+  const [hasPlayedToday, setHasPlayedToday] = useState(false);
+
+  // Initialize game and load saved data on client side only
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Set initial color and options on client side to avoid hydration mismatch
@@ -79,6 +115,19 @@ export default function ColourGame() {
       if (savedHighScore) {
         setHighScore(parseInt(savedHighScore, 10));
       }
+
+      // Load play history
+      const savedHistory = localStorage.getItem('dailycsscolor-play-history');
+      if (savedHistory) {
+        try {
+          const history = JSON.parse(savedHistory) as string[];
+          setPlayHistory(history);
+          setDailyStreak(calculateStreak(history));
+          setHasPlayedToday(history.includes(getTodayString()));
+        } catch {
+          // Invalid data, start fresh
+        }
+      }
     }
   }, []);
 
@@ -88,7 +137,23 @@ export default function ColourGame() {
     }
   }, [correctColor, difficulty]);
 
+  // Record today's play
+  const recordPlay = () => {
+    if (typeof window === 'undefined') return;
+    const today = getTodayString();
+    if (playHistory.includes(today)) return;
+
+    const newHistory = [...playHistory, today].slice(-365);
+    setPlayHistory(newHistory);
+    setHasPlayedToday(true);
+    setDailyStreak(calculateStreak(newHistory));
+    localStorage.setItem('dailycsscolor-play-history', JSON.stringify(newHistory));
+  };
+
   const handleGuess = (guess: string) => {
+    // Record play on first guess of the day
+    recordPlay();
+
     if (guess === correctColor) {
       setMessage("Correct! \ud83c\udf89");
       setWrongAnswerData(null);
@@ -155,6 +220,9 @@ export default function ColourGame() {
       case 'hard': return { bg: '#ef4444', hover: '#dc2626' }; // Red
     }
   };
+
+  const last30Days = getLast30Days();
+  const historySet = new Set(playHistory);
 
   return (
     <div className="text-center">
@@ -275,6 +343,33 @@ export default function ColourGame() {
         <div>Score: <span className="font-medium text-gray-900 dark:text-white">{score}</span></div>
         <div>Streak: <span className="font-medium text-gray-900 dark:text-white">{streak}</span></div>
         <div>High Score: <span className="font-medium text-gray-900 dark:text-white">{highScore}</span></div>
+      </div>
+
+      {/* Daily Streak & Calendar Heatmap */}
+      <div className="mb-4">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <span className="text-lg">&#x1f525;</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-white">
+            {dailyStreak} day{dailyStreak !== 1 ? 's' : ''} streak
+          </span>
+        </div>
+        {!hasPlayedToday && playHistory.length > 0 && (
+          <p className="text-xs text-amber-600 dark:text-amber-400 mb-2">Play today to start a new streak!</p>
+        )}
+        {hasPlayedToday && dailyStreak > 0 && (
+          <p className="text-xs text-green-600 dark:text-green-400 mb-2">Come back tomorrow to keep your streak!</p>
+        )}
+        <div className="inline-grid grid-cols-7 gap-1">
+          {last30Days.map((day) => (
+            <div
+              key={day}
+              className={`w-3 h-3 rounded-sm ${
+                historySet.has(day) ? 'bg-green-500' : 'bg-gray-200 dark:bg-neutral-700'
+              }`}
+              title={day}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Share High Score */}
