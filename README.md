@@ -57,7 +57,10 @@ const generateOptions = (correctColor: string, difficulty: Difficulty): string[]
   // Hard: Free-form text input with fuzzy matching
 };
 ```
-- **Three difficulty levels**: Progressive complexity with color grouping
+- **Four game modes**: Easy (multiple choice), Medium (same color family), Hard (free text input), and Gauntlet (progressive difficulty)
+- **Gauntlet Mode**: Auto-promotes through Easy → Medium → Hard with score multipliers (1x/2x/3x), progress tracking, and game-over summary
+- **Wrong-answer feedback**: Side-by-side color swatches comparing your guess to the correct answer, with color family hints on Hard mode
+- **Daily play streak**: Tracks consecutive days played with a 30-day calendar heatmap, persisted in localStorage
 - **Local score persistence**: Browser storage with social sharing hooks
 - **Real-time feedback**: Instant validation with streak tracking
 
