@@ -16,11 +16,11 @@ Main baseline `243408d` had one uncommitted owner file: `src/components/ColourGa
 
 ## Checks and limits
 
-19 Jest checks pass, including actual mounted game duplicate clicks, focus, blank hard submissions and denied persistence; pure engine promotion/scoring/alias/sampling/streak checks; existing date-colour helper checks. The 11 shared icon regressions pass; icon scan reports zero violations. Changed TypeScript/TSX files pass ESLint. Full TypeScript passes after direct local Prisma client generation from checked-out schema; no database connection, schema change, env-file access or SQL was used.
+20 Jest checks pass, including actual mounted game duplicate clicks, focus, blank hard submissions and denied persistence; pure engine promotion/scoring/alias/sampling/streak checks; existing date-colour helper checks. The 11 shared icon regressions pass; icon scan reports zero violations. Changed TypeScript/TSX files pass ESLint. Full TypeScript passes after direct local Prisma client generation from checked-out schema; no database connection, schema change, env-file access or SQL was used.
 
 The full-site lint still exposes legacy errors in unrelated API/worker/config sources. No lint bypass was added. Full Next production build is withheld because it prerenders current date content and includes email/admin/server surfaces outside this offline review. `next.config.ts` already ignores build-time ESLint; this is not counted as verification.
 
-`scripts/review-game.mjs` bundles only the actual game client and Tailwind CSS with esbuild, excludes Next routes/layout/email/analytics/date-reference code, and serves a clearly labelled local review at 127.0.0.1:4830 with CSP `connect-src 'none'`. It is a real random game client, not a provider simulation or live deployment. Browser evidence is recorded separately below once checked.
+`scripts/review-game.mjs` bundles only the actual game client, actual theme helper and Tailwind CSS with esbuild, excludes Next routes/layout/email/analytics/date-reference code, and serves a clearly labelled local review at 127.0.0.1:4830 with CSP `connect-src 'none'`. It is a real random game client, not a provider simulation or live deployment. Browser evidence is recorded separately below once checked.
 
 Existing date-colour hashing/timezone semantics, newsletter/admin security and scheduled delivery are unchanged and unaudited in this lane. No backend generation, live date route, email, provider, DB, push, merge or deployment ran. Baseline dependency audit was 1 critical / 16 high / 7 moderate / 4 low; the separate dependency receipt records its remediation. This is not a release-ready claim.
 
@@ -35,3 +35,10 @@ Local, ignored captures (client-only review, not production screenshots):
 - `.codex-artifacts/colour-game-gauntlet-mobile.jpg`: 390px actual random Gauntlet with rules, counts and four choice controls.
 
 The first review harness forced a white card while the browser used system dark styling. The harness was corrected to use the site's light/dark surface classes before evidence was captured. No fake output or hard-coded target was substituted.
+
+
+## Theme shell follow-up
+
+The actual theme helper used a stored `.dark` class while Tailwind dark variants and root variables still followed only system media preferences. Stored light mode could therefore disagree with the rendered palette. Dark variants and root variables now follow the same `.dark` class as the existing helper. Denied theme-storage reads fall back to the system preference. A mounted helper regression covers denied storage, saved light preference and listener cleanup; the local harness now includes this actual helper so the shell contract is exercised too. No theme picker or new preference was introduced.
+
+The final theme build was reloaded in Chrome: the actual helper applied `.dark` and `color-scheme: dark`; card background was `oklch(0.205 0 0)` and game text white, matching the system preference. The full layout remained readable and 1144px document width equalled the reset default viewport. Saved-light and denied-storage branches are covered by the mounted helper regression; no untested browser theme override is claimed.

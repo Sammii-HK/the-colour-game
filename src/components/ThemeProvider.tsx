@@ -7,7 +7,8 @@ export default function ThemeProvider() {
     // Apply theme on client side
     const applyTheme = () => {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const stored = localStorage.getItem('theme');
+      let stored: string | null = null;
+      try { stored = localStorage.getItem('theme'); } catch { /* Follow system theme when storage is unavailable. */ }
       
       if (stored === 'dark' || (!stored && isDark)) {
         document.documentElement.classList.add('dark');

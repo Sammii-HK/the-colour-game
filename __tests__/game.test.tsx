@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import ColourGame from '../src/components/ColourGame';
+import ThemeProvider from '../src/components/ThemeProvider';
 import { advance, answer, start, question, matches, cleanHistory, dailyStreak, loadProgress, saveProgress, dateKey, COLOR_GROUPS, colourHex } from '../src/lib/game';
 
 afterEach(() => { cleanup(); localStorage.clear(); jest.restoreAllMocks(); });
@@ -76,4 +77,17 @@ test('Gauntlet results focus the retry control and keep practice best separate',
   fireEvent.click(screen.getByRole('button',{name:'See results'}));
   expect(screen.getByRole('button',{name:'Try again'})).toBe(document.activeElement);
   expect(screen.getByText('0 Easy, 0 Medium and 0 Hard correct. Final score: 0.')).toBeTruthy();
+});
+
+test('site theme follows system when storage is denied and respects saved light preference', () => {
+  const media = {matches:true,addEventListener:jest.fn(),removeEventListener:jest.fn()};
+  Object.defineProperty(window,'matchMedia',{configurable:true,value:jest.fn(()=>media)});
+  const get=jest.spyOn(Storage.prototype,'getItem').mockImplementation(()=>{throw Error('denied');});
+  const view=render(<ThemeProvider/>);
+  expect(document.documentElement.classList.contains('dark')).toBe(true);
+  expect(document.documentElement.style.colorScheme).toBe('dark');
+  view.unmount(); expect(media.removeEventListener).toHaveBeenCalled();
+  get.mockReturnValue('light'); render(<ThemeProvider/>);
+  expect(document.documentElement.classList.contains('dark')).toBe(false);
+  expect(document.documentElement.style.colorScheme).toBe('light');
 });
