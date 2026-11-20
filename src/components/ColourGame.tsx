@@ -4,6 +4,11 @@ import React, { useState, useEffect } from "react";
 
 type ColorGroup = keyof typeof COLOR_GROUPS;
 type Difficulty = "easy" | "medium" | "hard";
+type GameMode = "normal" | "gauntlet";
+
+const GAUNTLET_MULTIPLIERS: Record<Difficulty, number> = { easy: 1, medium: 2, hard: 3 };
+const GAUNTLET_PROMOTE_THRESHOLD = 3;
+const GAUNTLET_STAGES: Difficulty[] = ["easy", "medium", "hard"];
 
 const COLOR_GROUPS = {
   red: ["indianred", "lightcoral", "salmon", "darkred", "red", "firebrick", "crimson"],
@@ -97,6 +102,14 @@ export default function ColourGame() {
     isValidColor: boolean;
   } | null>(null);
 
+  // Gauntlet mode
+  const [gameMode, setGameMode] = useState<GameMode>("normal");
+  const [gauntletStage, setGauntletStage] = useState<Difficulty>("easy");
+  const [gauntletScore, setGauntletScore] = useState(0);
+  const [gauntletCorrectCount, setGauntletCorrectCount] = useState(0);
+  const [gauntletGameOver, setGauntletGameOver] = useState(false);
+  const [gauntletStats, setGauntletStats] = useState<{ easy: number; medium: number; hard: number }>({ easy: 0, medium: 0, hard: 0 });
+
   // Daily streak
   const [dailyStreak, setDailyStreak] = useState(0);
   const [playHistory, setPlayHistory] = useState<string[]>([]);
@@ -150,52 +163,119 @@ export default function ColourGame() {
     localStorage.setItem('dailycsscolor-play-history', JSON.stringify(newHistory));
   };
 
+  const effectiveDifficulty = gameMode === "gauntlet" ? gauntletStage : difficulty;
+
+  const startGauntlet = () => {
+    setGameMode("gauntlet");
+    setGauntletStage("easy");
+    setGauntletScore(0);
+    setGauntletCorrectCount(0);
+    setGauntletGameOver(false);
+    setGauntletStats({ easy: 0, medium: 0, hard: 0 });
+    setMessage("");
+    setWrongAnswerData(null);
+    const newColor = getRandomColorFromGroup(getRandomGroup());
+    setCorrectColor(newColor);
+    setOptions(generateOptions(newColor, "easy"));
+  };
+
   const handleGuess = (guess: string) => {
     // Record play on first guess of the day
     recordPlay();
 
-    if (guess === correctColor) {
-      setMessage("Correct! \ud83c\udf89");
-      setWrongAnswerData(null);
-      const newScore = score + 10;
-      setScore(newScore);
-      setStreak(streak + 1);
-
-      // Update high score and save to localStorage
-      const newHighScore = Math.max(highScore, newScore);
-      setHighScore(newHighScore);
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('dailycsscolor-highscore', newHighScore.toString());
-      }
-
-      setTimeout(() => {
-        const newColor = getRandomColorFromGroup(getRandomGroup());
-        setCorrectColor(newColor);
-        setOptions(generateOptions(newColor, difficulty));
-        setMessage("");
-        setUserInput("");
-      }, 1500);
-    } else {
-      // Set wrong answer data for side-by-side display
-      setWrongAnswerData({
-        guessed: guess,
-        correct: correctColor,
-        isValidColor: ALL_COLOR_NAMES.has(guess),
-      });
-      setMessage("Wrong!");
-      setScore(0);
-      setStreak(0);
-
-      // Extended delay for wrong answers (2500ms vs 1500ms)
-      setTimeout(() => {
-        const newColor = getRandomColorFromGroup(getRandomGroup());
-        setCorrectColor(newColor);
-        setOptions(generateOptions(newColor, difficulty));
-        setMessage("");
-        setUserInput("");
+    if (gameMode === "gauntlet") {
+      if (guess === correctColor) {
+        const points = 10 * GAUNTLET_MULTIPLIERS[gauntletStage];
+        const newGauntletScore = gauntletScore + points;
+        setGauntletScore(newGauntletScore);
+        setGauntletStats(prev => ({ ...prev, [gauntletStage]: prev[gauntletStage] + 1 }));
+        const newCorrectCount = gauntletCorrectCount + 1;
+        setGauntletCorrectCount(newCorrectCount);
+        setMessage("Correct! \ud83c\udf89");
         setWrongAnswerData(null);
-      }, 2500);
+
+        setTimeout(() => {
+          // Check for promotion
+          if (newCorrectCount >= GAUNTLET_PROMOTE_THRESHOLD) {
+            const currentIdx = GAUNTLET_STAGES.indexOf(gauntletStage);
+            if (currentIdx < GAUNTLET_STAGES.length - 1) {
+              const nextStage = GAUNTLET_STAGES[currentIdx + 1];
+              setGauntletStage(nextStage);
+              setGauntletCorrectCount(0);
+              const newColor = getRandomColorFromGroup(getRandomGroup());
+              setCorrectColor(newColor);
+              setOptions(generateOptions(newColor, nextStage));
+            } else {
+              // Already on hard, just keep going
+              setGauntletCorrectCount(0);
+              const newColor = getRandomColorFromGroup(getRandomGroup());
+              setCorrectColor(newColor);
+              setOptions(generateOptions(newColor, gauntletStage));
+            }
+          } else {
+            const newColor = getRandomColorFromGroup(getRandomGroup());
+            setCorrectColor(newColor);
+            setOptions(generateOptions(newColor, gauntletStage));
+          }
+          setMessage("");
+          setUserInput("");
+        }, 1500);
+      } else {
+        // Wrong answer ends the gauntlet
+        setWrongAnswerData({
+          guessed: guess,
+          correct: correctColor,
+          isValidColor: ALL_COLOR_NAMES.has(guess),
+        });
+        setMessage("Wrong!");
+        setTimeout(() => {
+          setGauntletGameOver(true);
+          setMessage("");
+          setWrongAnswerData(null);
+        }, 2500);
+      }
+    } else {
+      // Normal mode
+      if (guess === correctColor) {
+        setMessage("Correct! \ud83c\udf89");
+        setWrongAnswerData(null);
+        const newScore = score + 10;
+        setScore(newScore);
+        setStreak(streak + 1);
+
+        const newHighScore = Math.max(highScore, newScore);
+        setHighScore(newHighScore);
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('dailycsscolor-highscore', newHighScore.toString());
+        }
+
+        setTimeout(() => {
+          const newColor = getRandomColorFromGroup(getRandomGroup());
+          setCorrectColor(newColor);
+          setOptions(generateOptions(newColor, difficulty));
+          setMessage("");
+          setUserInput("");
+        }, 1500);
+      } else {
+        setWrongAnswerData({
+          guessed: guess,
+          correct: correctColor,
+          isValidColor: ALL_COLOR_NAMES.has(guess),
+        });
+        setMessage("Wrong!");
+        setScore(0);
+        setStreak(0);
+
+        setTimeout(() => {
+          const newColor = getRandomColorFromGroup(getRandomGroup());
+          setCorrectColor(newColor);
+          setOptions(generateOptions(newColor, difficulty));
+          setMessage("");
+          setUserInput("");
+          setWrongAnswerData(null);
+        }, 2500);
+      }
     }
 
     // Track analytics
@@ -204,9 +284,9 @@ export default function ColourGame() {
       if (typeof plausible === 'function') {
         plausible('Colour Game Guess', {
           props: {
-            difficulty,
+            difficulty: effectiveDifficulty,
             correct: guess === correctColor,
-            score: guess === correctColor ? score + 10 : 0
+            score: guess === correctColor ? (gameMode === "gauntlet" ? gauntletScore + 10 * GAUNTLET_MULTIPLIERS[gauntletStage] : score + 10) : 0
           }
         });
       }
@@ -230,70 +310,132 @@ export default function ColourGame() {
 
       {/* Difficulty Selector */}
       <div className="mb-6">
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Difficulty: {difficulty.toUpperCase()}</p>
-        <div className="flex justify-center gap-2">
-          {(['easy', 'medium', 'hard'] as Difficulty[]).map((diff) => {
-            const colors = getDifficultyColor(diff);
-            return (
-              <button
-                key={diff}
-                onClick={() => setDifficulty(diff)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2 cursor-pointer ${
-                  difficulty === diff
-                    ? 'bg-white dark:bg-neutral-800 shadow-lg'
-                    : 'bg-transparent hover:bg-gray-50 dark:hover:bg-neutral-700'
-                }`}
-                style={{
-                  borderColor: difficulty === diff ? colors.bg : '#d1d5db',
-                  color: difficulty === diff ? colors.bg : undefined
-                }}
-              >
-                {diff.charAt(0).toUpperCase() + diff.slice(1)}
-              </button>
-            );
-          })}
-        </div>
+        {gameMode === "gauntlet" ? (
+          <p className="text-sm font-semibold mb-2" style={{ color: '#a855f7' }}>
+            GAUNTLET: {gauntletStage.charAt(0).toUpperCase() + gauntletStage.slice(1)} ({GAUNTLET_MULTIPLIERS[gauntletStage]}x)
+          </p>
+        ) : (
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Difficulty: {difficulty.toUpperCase()}</p>
+        )}
+        {gameMode !== "gauntlet" && (
+          <div className="flex justify-center gap-2">
+            {(['easy', 'medium', 'hard'] as Difficulty[]).map((diff) => {
+              const colors = getDifficultyColor(diff);
+              return (
+                <button
+                  key={diff}
+                  onClick={() => setDifficulty(diff)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2 cursor-pointer ${
+                    difficulty === diff
+                      ? 'bg-white dark:bg-neutral-800 shadow-lg'
+                      : 'bg-transparent hover:bg-gray-50 dark:hover:bg-neutral-700'
+                  }`}
+                  style={{
+                    borderColor: difficulty === diff ? colors.bg : '#d1d5db',
+                    color: difficulty === diff ? colors.bg : undefined
+                  }}
+                >
+                  {diff.charAt(0).toUpperCase() + diff.slice(1)}
+                </button>
+              );
+            })}
+            <button
+              onClick={startGauntlet}
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2 cursor-pointer bg-transparent hover:bg-gray-50 dark:hover:bg-neutral-700"
+              style={{ borderColor: '#a855f7', color: '#a855f7' }}
+            >
+              Gauntlet
+            </button>
+          </div>
+        )}
+        {gameMode === "gauntlet" && !gauntletGameOver && (
+          <button
+            onClick={() => setGameMode("normal")}
+            className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 underline mt-1"
+          >
+            Exit Gauntlet
+          </button>
+        )}
       </div>
 
-      {/* Color Swatch */}
-      <div
-        className="w-32 h-32 mx-auto mb-6 rounded-lg border-4 border-gray-300 dark:border-neutral-600 shadow-lg"
-        style={{ backgroundColor: correctColor || '#f3f4f6' }}
-      />
-
-      {/* Game Interface - Only show when color is loaded */}
-      {correctColor && (difficulty === "hard" ? (
-        <div className="mb-6">
-          <input
-            type="text"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value.toLowerCase())}
-            onKeyPress={(e) => e.key === 'Enter' && handleGuess(userInput)}
-            className="block w-full max-w-xs mx-auto px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-neutral-400 focus:border-gray-500 dark:focus:border-neutral-400 mb-3"
-            placeholder="Type the color name..."
-          />
-          <button
-            onClick={() => handleGuess(userInput)}
-            className="px-6 py-2 rounded-lg font-medium transition-all duration-200 bg-gray-600 dark:bg-gray-400 text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-          >
-            Submit
-          </button>
-        </div>
-      ) : (
-        <div className="mb-6">
-          <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
-            {options.map((color) => (
-              <button
-                key={color}
-                onClick={() => handleGuess(color)}
-                className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-neutral-500 transition-all duration-200"
-              >
-                {color}
-              </button>
-            ))}
+      {/* Gauntlet Game Over Summary */}
+      {gameMode === "gauntlet" && gauntletGameOver ? (
+        <div className="mb-6 p-6 rounded-xl border-2" style={{ borderColor: '#a855f7' }}>
+          <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Gauntlet Over!</h4>
+          <p className="text-3xl font-bold mb-4" style={{ color: '#a855f7' }}>{gauntletScore} pts</p>
+          <div className="flex justify-center gap-4 mb-4 text-sm text-gray-600 dark:text-gray-300">
+            <div>
+              <span className="font-medium" style={{ color: '#10b981' }}>Easy:</span> {gauntletStats.easy}
+            </div>
+            <div>
+              <span className="font-medium" style={{ color: '#f59e0b' }}>Medium:</span> {gauntletStats.medium}
+            </div>
+            <div>
+              <span className="font-medium" style={{ color: '#ef4444' }}>Hard:</span> {gauntletStats.hard}
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+            Total correct: {gauntletStats.easy + gauntletStats.medium + gauntletStats.hard}
+          </p>
+          <div className="flex justify-center gap-2">
+            <button
+              onClick={startGauntlet}
+              className="px-5 py-2 rounded-lg text-sm font-medium text-white transition-all duration-200 cursor-pointer"
+              style={{ backgroundColor: '#a855f7' }}
+            >
+              Play Again
+            </button>
+            <button
+              onClick={() => setGameMode("normal")}
+              className="px-5 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-neutral-600 transition-all duration-200 cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-700"
+            >
+              Back to Normal
+            </button>
           </div>
         </div>
-      ))}
+      ) : (
+        <>
+          {/* Color Swatch */}
+          <div
+            className="w-32 h-32 mx-auto mb-6 rounded-lg border-4 border-gray-300 dark:border-neutral-600 shadow-lg"
+            style={{ backgroundColor: correctColor || '#f3f4f6' }}
+          />
+
+          {/* Game Interface - Only show when color is loaded */}
+          {correctColor && (effectiveDifficulty === "hard" ? (
+            <div className="mb-6">
+              <input
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value.toLowerCase())}
+                onKeyDown={(e) => e.key === 'Enter' && handleGuess(userInput)}
+                className="block w-full max-w-xs mx-auto px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-neutral-400 focus:border-gray-500 dark:focus:border-neutral-400 mb-3"
+                placeholder="Type the color name..."
+              />
+              <button
+                onClick={() => handleGuess(userInput)}
+                className="px-6 py-2 rounded-lg font-medium transition-all duration-200 bg-gray-600 dark:bg-gray-400 text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              >
+                Submit
+              </button>
+            </div>
+          ) : (
+            <div className="mb-6">
+              <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
+                {options.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => handleGuess(color)}
+                    className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-neutral-500 transition-all duration-200"
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
 
       {/* Message & Wrong Answer Feedback */}
       {message && (
@@ -321,7 +463,7 @@ export default function ColourGame() {
                 <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{wrongAnswerData.correct}</p>
               </div>
             </div>
-            {difficulty === "hard" && wrongAnswerData.isValidColor && (
+            {effectiveDifficulty === "hard" && wrongAnswerData.isValidColor && (
               <p className="text-xs mt-2" style={{
                 color: isInSameGroup(wrongAnswerData.guessed, wrongAnswerData.correct) ? '#10b981' : '#ef4444'
               }}>
@@ -340,9 +482,18 @@ export default function ColourGame() {
 
       {/* Score */}
       <div className="flex justify-center gap-6 text-sm text-gray-600 dark:text-gray-300 mb-4">
-        <div>Score: <span className="font-medium text-gray-900 dark:text-white">{score}</span></div>
-        <div>Streak: <span className="font-medium text-gray-900 dark:text-white">{streak}</span></div>
-        <div>High Score: <span className="font-medium text-gray-900 dark:text-white">{highScore}</span></div>
+        {gameMode === "gauntlet" && !gauntletGameOver ? (
+          <>
+            <div>Gauntlet Score: <span className="font-medium" style={{ color: '#a855f7' }}>{gauntletScore}</span></div>
+            <div>Correct: <span className="font-medium text-gray-900 dark:text-white">{gauntletCorrectCount}/{GAUNTLET_PROMOTE_THRESHOLD}</span></div>
+          </>
+        ) : (
+          <>
+            <div>Score: <span className="font-medium text-gray-900 dark:text-white">{score}</span></div>
+            <div>Streak: <span className="font-medium text-gray-900 dark:text-white">{streak}</span></div>
+            <div>High Score: <span className="font-medium text-gray-900 dark:text-white">{highScore}</span></div>
+          </>
+        )}
       </div>
 
       {/* Daily Streak & Calendar Heatmap */}
