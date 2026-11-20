@@ -7,7 +7,7 @@
     "build": "npm run lint:icons && next build",
     "start": "next start",
     "lint": "eslint . && npm run lint:icons",
-    "test": "jest",
+    "test": "npm run test:icons && jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "generate:today": "node scripts/generate-today-standalone.js",
