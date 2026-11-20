@@ -15,6 +15,7 @@ export default function ColourGame() {
   const [storageNotice, setStorageNotice] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
   const nextButton = useRef<HTMLButtonElement>(null);
+  const retryButton = useRef<HTMLButtonElement>(null);
   const answerArea = useRef<HTMLDivElement>(null);
   const update = (next: Game) => { current.current = next; setGame(next); setInput(''); setCopyNotice(''); };
 
@@ -29,6 +30,7 @@ export default function ColourGame() {
 
   useEffect(() => {
     if (game?.phase === 'feedback') nextButton.current?.focus();
+    if (game?.phase === 'over') retryButton.current?.focus();
   }, [game?.phase]);
 
   function guess(raw: string) {
@@ -76,7 +78,7 @@ export default function ColourGame() {
           <div className="rounded-xl bg-gray-100 dark:bg-neutral-800 p-3"><p className="text-xs text-gray-500 dark:text-gray-400">{game.mode === 'gauntlet' ? 'Stage' : 'Correct in a row'}</p><p className="text-lg capitalize">{game.mode === 'gauntlet' ? game.difficulty : game.streak}</p></div>
           <div className="rounded-xl bg-gray-100 dark:bg-neutral-800 p-3"><p className="text-xs text-gray-500 dark:text-gray-400">Practice best</p><p className="text-2xl tabular-nums">{highScore}</p></div>
         </div>
-        {over ? <div className="rounded-2xl border border-violet-300 p-6 mb-5"><h4 className="text-xl font-semibold mb-2">Gauntlet complete</h4><p className="text-sm mb-4">{game.stats.easy} Easy, {game.stats.medium} Medium and {game.stats.hard} Hard correct. Final score: {game.score}.</p><button className={control} onClick={() => update(start('gauntlet', 'easy', game.target))}><RotateCcw size={16} className="inline mr-2" aria-hidden="true" />Try again</button></div> : <>
+        {over ? <div className="rounded-2xl border border-violet-300 p-6 mb-5"><h4 className="text-xl font-semibold mb-2">Gauntlet complete</h4><p className="text-sm mb-4">{game.stats.easy} Easy, {game.stats.medium} Medium and {game.stats.hard} Hard correct. Final score: {game.score}.</p><button ref={retryButton} className={control} onClick={() => update(start('gauntlet', 'easy', game.target))}><RotateCcw size={16} className="inline mr-2" aria-hidden="true" />Try again</button></div> : <>
           <div className="rounded-2xl border border-gray-300 dark:border-neutral-600 h-40 sm:h-48 mb-5" style={{ backgroundColor: game.target }} role="img" aria-label="Colour to identify visually" />
           <div ref={answerArea}>
             {game.difficulty === 'hard' ? <form onSubmit={e => { e.preventDefault(); guess(input); }} className="mb-5"><label htmlFor="colour-guess" className="block text-sm mb-2">CSS colour name</label><div className="flex flex-wrap gap-2"><input id="colour-guess" value={input} disabled={feedback} autoComplete="off" autoCapitalize="none" spellCheck={false} onChange={e => setInput(e.target.value)} className={`${control} min-w-0 flex-1 bg-transparent`} placeholder="For example, coral" /><button className={control} disabled={feedback || !input.trim()} type="submit">Check answer</button></div><p className="text-xs text-gray-500 dark:text-gray-400 mt-2">CSS aliases such as grey and gray both count.</p></form> : <div className="grid grid-cols-2 gap-2 mb-5">{game.options.map(name => <button key={name} className={`${control} break-words`} disabled={feedback} onClick={() => guess(name)}>{name}</button>)}</div>}

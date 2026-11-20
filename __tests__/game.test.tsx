@@ -68,3 +68,12 @@ test('actual play survives blocked persistence', () => {
   fireEvent.click(screen.getByRole('button',{name:'Next colour'}));
   expect(screen.queryByRole('button',{name:'Next colour'})).toBeNull();
 });
+test('Gauntlet results focus the retry control and keep practice best separate', () => {
+  jest.spyOn(Math,'random').mockReturnValue(0);
+  render(<ColourGame />);
+  fireEvent.click(screen.getByRole('button',{name:'Gauntlet'}));
+  fireEvent.click(screen.getByRole('button',{name:'salmon'}));
+  fireEvent.click(screen.getByRole('button',{name:'See results'}));
+  expect(screen.getByRole('button',{name:'Try again'})).toBe(document.activeElement);
+  expect(screen.getByText('0 Easy, 0 Medium and 0 Hard correct. Final score: 0.')).toBeTruthy();
+});
