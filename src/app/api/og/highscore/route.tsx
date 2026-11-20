@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
             High Score
           </div>
           <div style={{ fontSize: '32px', marginBottom: '20px', opacity: 0.7 }}>
-            🔥 {streak} streak
+            {streak} correct in a row
           </div>
           <div style={{ fontSize: '28px', opacity: 0.6 }}>
             #dailycsscolor

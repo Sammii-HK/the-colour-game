@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { Suspense } from 'react';
 import UnsubscribeForm from '@/components/UnsubscribeForm';
 
@@ -10,7 +12,7 @@ export default function UnsubscribePage() {
             Unsubscribe from Daily CSS Color
           </h1>
           <p className="text-gray-600">
-            We're sorry to see you go. You can unsubscribe from our daily color emails below.
+            We&apos;re sorry to see you go. You can unsubscribe from our daily color emails below.
           </p>
         </div>
         
@@ -19,9 +21,9 @@ export default function UnsubscribePage() {
         </Suspense>
         
         <div className="mt-8 text-center">
-          <a href="/" className="text-blue-600 hover:text-blue-700">
-            ← Back to Daily CSS Color
-          </a>
+          <Link href="/" className="text-blue-600 hover:text-blue-700">
+            <ArrowLeft size={16} aria-hidden="true" className="inline mr-2" /> Back to Daily CSS Color
+          </Link>
         </div>
       </div>
     </div>

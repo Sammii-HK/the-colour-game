@@ -1,3 +1,4 @@
+import { Pencil, Users, Palette } from 'lucide-react';
 import Link from 'next/link';
 import { getTodaysColour } from '@/lib/colours';
 import EmailSignupForm from '@/components/EmailSignupForm';
@@ -29,15 +30,15 @@ export default function HomePage() {
               Daily CSS Color
             </h1>
             <p className="mt-3 max-w-md mx-auto text-base text-gray-500 dark:text-gray-300 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-              Test your CSS color knowledge, discover new colors daily, and join the creative community!
+              Build your CSS colour vocabulary with random practice and a three-stage Gauntlet.
             </p>
           </div>
           
           {/* Color Game - Now the main attraction */}
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-700 dark:to-neutral-600 rounded-xl shadow-lg p-8 mb-8">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-700 dark:to-neutral-600 max-w-2xl mx-auto rounded-2xl shadow-lg p-5 sm:p-8 mb-8">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                🎮 CSS Color Challenge
+                CSS Color Challenge
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
                 How well do you know your CSS colors? Test your skills and beat your high score!
@@ -76,12 +77,12 @@ export default function HomePage() {
               
               {/* Creative Prompt */}
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-neutral-700 dark:to-neutral-600 rounded-lg p-4 max-w-lg mx-auto mb-6 border border-gray-200 dark:border-neutral-600">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">🎨 Create & Share</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Create & Share</h4>
                 <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
                   Make something beautiful with {todaysColour.name} and share it with <span className="font-mono font-semibold">#dailycsscolor</span>
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  💡 Ideas: Digital art • Logo design • CSS animations • Photography • Crafts
+                  Ideas include digital art, logo design, CSS animation, photography and crafts.
                 </p>
               </div>
               
@@ -115,7 +116,7 @@ export default function HomePage() {
               <EmailSignupForm todaysColor={todaysColour.hex} isLightColor={isLight} />
             </div>
             <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-              Join 1000+ artists and designers exploring color creativity together
+              One reference colour each day. Practice rounds are random.
             </p>
           </div>
         </div>
@@ -129,25 +130,10 @@ export default function HomePage() {
             Share your high scores and daily color creations with <span className="font-mono font-bold">#dailycsscolor</span>
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="https://twitter.com/intent/tweet?text=I just scored [SCORE] points on the Daily CSS Color Challenge! 🎨 Can you beat my score? %23dailycsscolor" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 bg-white text-purple-600 rounded-md font-semibold hover:bg-gray-100"
-            >
-              Share on Twitter
-            </a>
-            <a 
-              href="https://www.instagram.com/" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 border border-white text-white rounded-md font-semibold hover:bg-white hover:text-purple-600"
-            >
-              Share on Instagram
-            </a>
+            <a href="#game-title" className="px-6 py-3 bg-white text-purple-700 rounded-md font-semibold hover:bg-gray-100">Play and copy your score</a>
           </div>
           <p className="mt-4 text-sm opacity-75">
-            Follow us for daily inspiration and see what amazing things the community creates!
+            Copy your actual practice best from the game, then share it wherever you like.
           </p>
         </div>
       </div>
@@ -155,10 +141,10 @@ export default function HomePage() {
       {/* Sample Colours */}
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
             Explore Colors
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
             Discover the beautiful CSS colours that inspire daily creativity
           </p>
         </div>
@@ -183,7 +169,7 @@ export default function HomePage() {
                 className="w-full h-20 rounded-lg border-2 border-gray-200 mb-2"
                 style={{ backgroundColor: colour.hex }}
               />
-              <p className="text-xs font-medium text-gray-900">{colour.name}</p>
+              <p className="text-xs font-medium text-gray-900 dark:text-white">{colour.name}</p>
               <p className="text-xs text-gray-500 font-mono">{colour.hex}</p>
             </div>
           ))}
@@ -196,37 +182,31 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center">
             <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
+              <Pencil className="w-8 h-8 text-blue-600" aria-hidden="true" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Daily Creative Challenges</h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Get a new color and creative prompt every morning. Turn inspiration into actual art and share your creations.
             </p>
           </div>
           
           <div className="text-center">
             <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+              <Users className="w-8 h-8 text-green-600" aria-hidden="true" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Creative Community</h3>
-            <p className="text-gray-600">
-              Join 1000+ artists, designers, and creators. Share your work, get inspired by others, and grow together.
+            <p className="text-gray-600 dark:text-gray-300">
+              Make something with the reference colour and share it using #dailycsscolor.
             </p>
           </div>
           
           <div className="text-center">
             <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <Palette className="w-8 h-8 text-purple-600" aria-hidden="true" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Art Gallery</h3>
-            <p className="text-gray-600">
-              Showcase your creations in our community gallery. From digital art to photography, all mediums welcome.
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Your own colour studies</h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Try a colour study in your own tools, from digital art to photography. There is no upload gallery on this site.
             </p>
           </div>
         </div>
@@ -236,7 +216,7 @@ export default function HomePage() {
       <footer className="bg-white border-t">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
           <div className="text-center text-gray-500">
-            <p>&copy; 2025 Daily CSS Color. Made with ❤️ for designers and developers.</p>
+            <p>&copy; 2026 Daily CSS Color. For designers and developers.</p>
           </div>
         </div>
       </footer>

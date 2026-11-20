@@ -29,7 +29,7 @@ export const DailyColourEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>Today's colour: {colour.name} {colour.hex}</Preview>
+      <Preview>Today&apos;s colour: {colour.name} {colour.hex}</Preview>
       <Body style={main}>
         <Container style={container}>
           {/* Header */}
@@ -63,13 +63,13 @@ export const DailyColourEmail = ({
           {/* Creative Challenge */}
           <Section style={promptSection}>
             <Text style={promptText}>
-              Today&apos;s Creative Challenge 🎨
+              Today&apos;s Creative Challenge
             </Text>
             <Text style={challengeText}>
               Create something beautiful using {colour.name}! Draw, paint, design, code, craft, or photograph - then share it with #dailycsscolor
             </Text>
             <Text style={inspirationText}>
-              💡 Ideas: Abstract art • Logo design • CSS animation • Watercolor painting • Digital illustration • Photography • Crafts
+              Ideas: Abstract art • Logo design • CSS animation • Watercolor painting • Digital illustration • Photography • Crafts
             </Text>
           </Section>
 
@@ -111,7 +111,7 @@ export const DailyColourEmail = ({
             </Text>
             <Text style={addressText}>
               Daily CSS Colour<br />
-              Made with ❤️ for designers and developers
+              Made for designers and developers
             </Text>
           </Section>
         </Container>

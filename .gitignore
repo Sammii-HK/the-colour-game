@@ -44,3 +44,5 @@ generated
 
 /src/generated/prisma
 .next/
+
+.codex-artifacts/
