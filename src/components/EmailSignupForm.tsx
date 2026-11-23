@@ -106,7 +106,7 @@ export default function EmailSignupForm({ todaysColor, isLightColor }: EmailSign
         </div>
       )}
       
-      <p className="mt-3 text-xs text-gray-500 text-center">
+      <p className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center">
         Free forever. Unsubscribe anytime. No spam, just beautiful colours.
       </p>
     </div>

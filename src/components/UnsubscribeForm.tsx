@@ -47,7 +47,7 @@ export default function UnsubscribeForm() {
   return (
     <form onSubmit={handleUnsubscribe}>
       <div className="mb-4">
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
           Email Address
         </label>
         <input
@@ -55,7 +55,7 @@ export default function UnsubscribeForm() {
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="block w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-gray-900 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           placeholder="your-email@example.com"
           disabled={status === 'loading'}
         />
@@ -64,27 +64,27 @@ export default function UnsubscribeForm() {
       <button
         type="submit"
         disabled={status === 'loading'}
-        className="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+        className="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 focus:ring-red-500 disabled:opacity-50"
       >
         {status === 'loading' ? 'Unsubscribing...' : 'Unsubscribe'}
       </button>
       
       {message && (
         <div className={`mt-4 text-sm text-center ${
-          status === 'success' ? 'text-green-600' : 'text-red-600'
+          status === 'success' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
         }`}>
           {message}
         </div>
       )}
       
       {status === 'success' && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-md">
-          <h3 className="text-sm font-medium text-gray-900 mb-2">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-neutral-900 rounded-md">
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
             We'd love your feedback
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             Was there something we could have done better? 
-            <a href="mailto:hello@thecolorgame.uk" className="text-blue-600 hover:text-blue-700">
+            <a href="mailto:hello@thecolorgame.uk" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
               Let us know
             </a>
           </p>

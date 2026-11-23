@@ -59,7 +59,7 @@ export default function HomePage() {
               </h2>
               <div className="flex justify-center mb-6">
                 <div 
-                  className="w-24 h-24 rounded-lg border-4 border-gray-200 shadow-lg"
+                  className="w-24 h-24 rounded-lg border-4 border-gray-200 dark:border-neutral-600 shadow-lg"
                   style={{ backgroundColor: todaysColour.hex }}
                 />
               </div>
@@ -81,7 +81,7 @@ export default function HomePage() {
                 <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
                   Make something beautiful with {todaysColour.name} and share it with <span className="font-mono font-semibold">#dailycsscolor</span>
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   Ideas include digital art, logo design, CSS animation, photography and crafts.
                 </p>
               </div>
@@ -166,11 +166,11 @@ export default function HomePage() {
           ].map((colour) => (
             <div key={colour.name} className="text-center">
               <div 
-                className="w-full h-20 rounded-lg border-2 border-gray-200 mb-2"
+                className="w-full h-20 rounded-lg border-2 border-gray-200 dark:border-neutral-700 mb-2"
                 style={{ backgroundColor: colour.hex }}
               />
               <p className="text-xs font-medium text-gray-900 dark:text-white">{colour.name}</p>
-              <p className="text-xs text-gray-500 font-mono">{colour.hex}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">{colour.hex}</p>
             </div>
           ))}
         </div>
@@ -184,7 +184,7 @@ export default function HomePage() {
             <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <Pencil className="w-8 h-8 text-blue-600" aria-hidden="true" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Daily Creative Challenges</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Daily Creative Challenges</h3>
             <p className="text-gray-600 dark:text-gray-300">
               Get a new color and creative prompt every morning. Turn inspiration into actual art and share your creations.
             </p>
@@ -194,9 +194,9 @@ export default function HomePage() {
             <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <Users className="w-8 h-8 text-green-600" aria-hidden="true" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Creative Community</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Creative Community</h3>
             <p className="text-gray-600 dark:text-gray-300">
-              Make something with the reference colour and share it using #dailycsscolor.
+              Make something with today&apos;s colour and share it using #dailycsscolor.
             </p>
           </div>
           
@@ -204,7 +204,7 @@ export default function HomePage() {
             <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <Palette className="w-8 h-8 text-purple-600" aria-hidden="true" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Your own colour studies</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Your own colour studies</h3>
             <p className="text-gray-600 dark:text-gray-300">
               Make a colour study in any medium, from digital art to photography, and share it with #dailycsscolor.
             </p>
@@ -213,9 +213,9 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t">
+      <footer className="bg-white dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-700">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-gray-500">
+          <div className="text-center text-gray-500 dark:text-gray-400">
             <p>&copy; 2026 Daily CSS Color. For designers and developers.</p>
           </div>
         </div>
