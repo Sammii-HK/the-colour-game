@@ -65,7 +65,7 @@ export default function ColourGame() {
       <div className="mb-6">
         <p className="text-xs uppercase tracking-widest text-violet-700 dark:text-violet-300 mb-2">A little colour intuition</p>
         <h3 id="game-title" className="text-2xl font-semibold mb-2">Name that CSS colour</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300">Random practice, separate from the date’s reference colour. Scores and play history stay in this browser.</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">Practise with random colours. Your scores and play history are saved in this browser.</p>
       </div>
       <div className="flex flex-wrap gap-2 mb-4" aria-label="Game mode">
         <button className={control} aria-pressed={game?.mode === 'normal'} onClick={() => update(start('normal', 'easy', game?.target))}>Practice</button>
@@ -89,7 +89,7 @@ export default function ColourGame() {
       </>}
       <div className="border-t border-gray-200 dark:border-neutral-700 pt-5 mt-5">
         <p className="text-sm font-medium flex items-center gap-2 mb-2"><Flame size={17} aria-hidden="true" />{streak} day{streak === 1 ? '' : 's'} played in a row</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{history.includes(dateKey(new Date())) ? 'You played today.' : 'Make a guess to mark today.'} Days follow your local calendar.</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{history.includes(dateKey(new Date())) ? 'You played today.' : 'Make a guess to mark today.'}</p>
         <div className="flex flex-wrap gap-1 mb-2" role="img" aria-label={`${days.filter(d => history.includes(d)).length} of the last 30 days played`} aria-hidden="false">{days.map(day => <span key={day} title={`${day}: ${history.includes(day) ? 'played' : 'not played'}`} aria-hidden="true" className={`w-3 h-3 rounded-sm ${history.includes(day) ? 'bg-violet-500' : 'bg-gray-200 dark:bg-neutral-700'}`} />)}</div>
         {storageNotice && <p role="status" className="text-xs mt-3">{storageNotice}</p>}
         {highScore > 0 && <button className={`${control} mt-4`} onClick={async () => { try { await navigator.clipboard.writeText(`My best CSS colour practice score is ${highScore}. Play at ${window.location.origin}`); setCopyNotice('Score copied.'); } catch { setCopyNotice('Could not copy. Your practice best is ' + highScore + '.'); } }}><Copy size={16} aria-hidden="true" className="inline mr-2" />Copy practice best</button>}

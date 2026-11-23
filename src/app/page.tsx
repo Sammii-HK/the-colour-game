@@ -116,7 +116,7 @@ export default function HomePage() {
               <EmailSignupForm todaysColor={todaysColour.hex} isLightColor={isLight} />
             </div>
             <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-              One reference colour each day. Practice rounds are random.
+              One new colour in your inbox each day.
             </p>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function HomePage() {
             <a href="#game-title" className="px-6 py-3 bg-white text-purple-700 rounded-md font-semibold hover:bg-gray-100">Play and copy your score</a>
           </div>
           <p className="mt-4 text-sm opacity-75">
-            Copy your actual practice best from the game, then share it wherever you like.
+            Copy your best score from the game and share it wherever you like.
           </p>
         </div>
       </div>
@@ -206,7 +206,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Your own colour studies</h3>
             <p className="text-gray-600 dark:text-gray-300">
-              Try a colour study in your own tools, from digital art to photography. There is no upload gallery on this site.
+              Make a colour study in any medium, from digital art to photography, and share it with #dailycsscolor.
             </p>
           </div>
         </div>
