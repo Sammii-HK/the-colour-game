@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
 import ColourGame from '../src/components/ColourGame';
 import ThemeProvider from '../src/components/ThemeProvider';
-import { advance, answer, start, question, matches, cleanHistory, dailyStreak, loadProgress, saveProgress, dateKey, COLOR_GROUPS, colourHex } from '../src/lib/game';
+import { advance, answer, start, question, matches, cleanHistory, dailyStreak, loadProgress, saveProgress, dateKey, COLOR_GROUPS, colourHex, resetHighScore, cleanScore, shareText, shareIntentUrl, scoreImagePath } from '../src/lib/game';
 
 afterEach(() => { cleanup(); localStorage.clear(); jest.restoreAllMocks(); });
 test('Gauntlet promotes after three correct per stage and earns 10/20/30', () => {
@@ -90,4 +90,48 @@ test('site theme follows system when storage is denied and respects saved light 
   get.mockReturnValue('light'); render(<ThemeProvider/>);
   expect(document.documentElement.classList.contains('dark')).toBe(false);
   expect(document.documentElement.style.colorScheme).toBe('light');
+});
+
+test('share helpers carry the real score, never a placeholder', () => {
+  expect(shareText(120)).toBe('My practice best in The Colour Game is 120, naming 12 CSS colours in a row. Can you beat it? #dailycsscolor');
+  expect(shareText(10)).toContain('naming 1 CSS colour in a row');
+  const intent = new URL(shareIntentUrl(120, 'https://thecolorgame.uk'));
+  expect(intent.origin + intent.pathname).toBe('https://x.com/intent/tweet');
+  expect(intent.searchParams.get('text')).toContain('120');
+  expect(intent.searchParams.get('text')).not.toContain('[SCORE]');
+  expect(intent.searchParams.get('url')).toBe('https://thecolorgame.uk/score/120');
+  expect(scoreImagePath(120)).toBe('/api/og/highscore?score=120&streak=12');
+  expect(cleanScore('120')).toBe(120); expect(cleanScore('-1')).toBeNull(); expect(cleanScore('1e3')).toBeNull(); expect(cleanScore('9999999')).toBeNull();
+  expect(resetHighScore({setItem:()=>{throw Error('denied');}})).toBe(false);
+});
+test('share uses the Web Share API with the score page, falling back to an X intent', async () => {
+  jest.spyOn(Math,'random').mockReturnValue(0);
+  const share = jest.fn().mockResolvedValue(undefined);
+  Object.defineProperty(navigator,'share',{configurable:true,value:share});
+  const open = jest.spyOn(window,'open').mockImplementation(()=>null);
+  render(<ColourGame />); fireEvent.click(screen.getByRole('button',{name:'indianred'}));
+  await act(async () => { fireEvent.click(screen.getByRole('button',{name:'Share practice best'})); });
+  expect(share).toHaveBeenCalledWith({title:'The Colour Game',text:shareText(10),url:`${window.location.origin}/score/10`});
+  expect(open).not.toHaveBeenCalled();
+  share.mockRejectedValueOnce(Object.assign(new Error('cancelled'),{name:'AbortError'}));
+  await act(async () => { fireEvent.click(screen.getByRole('button',{name:'Share practice best'})); });
+  expect(open).not.toHaveBeenCalled();
+  Object.defineProperty(navigator,'share',{configurable:true,value:undefined});
+  await act(async () => { fireEvent.click(screen.getByRole('button',{name:'Share practice best'})); });
+  expect(open).toHaveBeenCalledWith(shareIntentUrl(10, window.location.origin),'_blank','noopener,noreferrer');
+});
+test('reset asks inline before clearing the practice best and keeps play history', () => {
+  jest.spyOn(Math,'random').mockReturnValue(0);
+  render(<ColourGame />); fireEvent.click(screen.getByRole('button',{name:'indianred'}));
+  fireEvent.click(screen.getByRole('button',{name:'Reset practice best'}));
+  expect(screen.getByText(/Are you sure\?/)).toBeTruthy();
+  expect(screen.getByRole('button',{name:'Cancel'})).toBe(document.activeElement);
+  fireEvent.click(screen.getByRole('button',{name:'Cancel'}));
+  expect(localStorage.getItem('dailycsscolor-highscore')).toBe('10');
+  fireEvent.click(screen.getByRole('button',{name:'Reset practice best'}));
+  fireEvent.click(screen.getByRole('button',{name:'Yes, reset'}));
+  expect(localStorage.getItem('dailycsscolor-highscore')).toBe('0');
+  expect(localStorage.getItem('dailycsscolor-play-history')).toBe(JSON.stringify([dateKey(new Date())]));
+  expect(screen.queryByRole('button',{name:'Share practice best'})).toBeNull();
+  expect(screen.getByText('Practice best reset to 0.')).toBeTruthy();
 });

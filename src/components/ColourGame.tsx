@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, Copy, Flame, RotateCcw, Trophy, X } from 'lucide-react';
-import { advance, answer, cleanHistory, colourHex, dailyStreak, dateKey, Game, loadProgress, saveProgress, start, Difficulty } from '../lib/game';
+import { ArrowRight, Check, Copy, Flame, RotateCcw, Share2, Trophy, X } from 'lucide-react';
+import { advance, answer, cleanHistory, colourHex, dailyStreak, dateKey, Game, loadProgress, resetHighScore, runLength, saveProgress, scorePath, shareIntentUrl, shareText, start, Difficulty } from '../lib/game';
 
 const control = 'min-h-11 rounded-xl border border-gray-300 dark:border-neutral-600 px-4 py-2 text-sm font-medium transition hover:bg-gray-100 dark:hover:bg-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500 disabled:opacity-50 disabled:cursor-not-allowed aria-pressed:bg-violet-100 dark:aria-pressed:bg-violet-950 aria-pressed:border-violet-500';
 
@@ -14,6 +14,10 @@ export default function ColourGame() {
   const [history, setHistory] = useState<string[]>([]);
   const [storageNotice, setStorageNotice] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
+  const [confirmReset, setConfirmReset] = useState(false);
+  const resetButton = useRef<HTMLButtonElement>(null);
+  const cancelReset = useRef<HTMLButtonElement>(null);
+  const scoreNotice = useRef<HTMLParagraphElement>(null);
   const nextButton = useRef<HTMLButtonElement>(null);
   const retryButton = useRef<HTMLButtonElement>(null);
   const answerArea = useRef<HTMLDivElement>(null);
@@ -27,6 +31,8 @@ export default function ColourGame() {
       if (!progress.available) setStorageNotice('Scores are available for this visit only. Browser storage is unavailable.');
     } catch { setStorageNotice('Scores are available for this visit only. Browser storage is unavailable.'); }
   }, []);
+
+  useEffect(() => { if (confirmReset) cancelReset.current?.focus(); }, [confirmReset]);
 
   useEffect(() => {
     if (game?.phase === 'feedback') nextButton.current?.focus();
@@ -50,6 +56,43 @@ export default function ColourGame() {
     try {
       if (!saveProgress(window.localStorage, nextHigh, nextHistory)) setStorageNotice('Scores are available for this visit only. Browser storage could not be updated.');
     } catch { setStorageNotice('Scores are available for this visit only. Browser storage is unavailable.'); }
+  }
+  function track(event: string, props: Record<string, unknown>) {
+    const plausible = (window as unknown as { plausible?: (event: string, options: { props: Record<string, unknown> }) => void }).plausible;
+    if (typeof plausible === 'function') { try { plausible(event, { props }); } catch { /* Optional analytics never block sharing. */ } }
+  }
+  async function shareBest() {
+    const score = highScore;
+    if (!score) return;
+    const url = window.location.origin + scorePath(score);
+    setConfirmReset(false); setCopyNotice('');
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: 'The Colour Game', text: shareText(score), url });
+        track('High Score Share', { score, method: 'web-share' });
+        return;
+      } catch (error) {
+        if ((error as { name?: string })?.name === 'AbortError') return; // The visitor closed the share sheet.
+      }
+    }
+    window.open(shareIntentUrl(score, window.location.origin), '_blank', 'noopener,noreferrer');
+    track('High Score Share', { score, method: 'x-intent' });
+  }
+  async function copyBest() {
+    setConfirmReset(false);
+    try { await navigator.clipboard.writeText(`${shareText(highScore)} ${window.location.origin}${scorePath(highScore)}`); setCopyNotice('Score copied.'); }
+    catch { setCopyNotice(`Could not copy. Your practice best is ${highScore}.`); }
+  }
+  function confirmResetBest() {
+    setConfirmReset(false); setHighScore(0);
+    let saved = false;
+    try { saved = resetHighScore(window.localStorage); } catch { saved = false; }
+    setCopyNotice(saved ? 'Practice best reset to 0.' : 'Practice best reset for this visit. Browser storage could not be updated.');
+    requestAnimationFrame(() => scoreNotice.current?.focus());
+  }
+  function keepBest() {
+    setConfirmReset(false);
+    requestAnimationFrame(() => resetButton.current?.focus());
   }
   function continueGame() {
     if (!current.current) return;
@@ -92,8 +135,22 @@ export default function ColourGame() {
         <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">{history.includes(dateKey(new Date())) ? 'You played today.' : 'Make a guess to mark today.'}</p>
         <div className="flex flex-wrap gap-1 mb-2" role="img" aria-label={`${days.filter(d => history.includes(d)).length} of the last 30 days played`} aria-hidden="false">{days.map(day => <span key={day} title={`${day}: ${history.includes(day) ? 'played' : 'not played'}`} aria-hidden="true" className={`w-3 h-3 rounded-sm ${history.includes(day) ? 'bg-violet-500' : 'bg-gray-200 dark:bg-neutral-700'}`} />)}</div>
         {storageNotice && <p role="status" className="text-xs mt-3">{storageNotice}</p>}
-        {highScore > 0 && <button className={`${control} mt-4`} onClick={async () => { try { await navigator.clipboard.writeText(`My best CSS colour practice score is ${highScore}. Play at ${window.location.origin}`); setCopyNotice('Score copied.'); } catch { setCopyNotice('Could not copy. Your practice best is ' + highScore + '.'); } }}><Copy size={16} aria-hidden="true" className="inline mr-2" />Copy practice best</button>}
-        {copyNotice && <p role="status" className="text-sm mt-2">{copyNotice}</p>}
+        {highScore > 0 && <div className="mt-4">
+          <p className="text-sm mb-3">Your practice best is {highScore}, {runLength(highScore)} correct in a row.</p>
+          <div className="flex flex-wrap gap-2">
+            <button className={control} onClick={shareBest}><Share2 size={16} aria-hidden="true" className="inline mr-2" />Share practice best</button>
+            <button className={control} onClick={copyBest}><Copy size={16} aria-hidden="true" className="inline mr-2" />Copy practice best</button>
+            {!confirmReset && <button ref={resetButton} className={control} onClick={() => { setCopyNotice(''); setConfirmReset(true); }}><RotateCcw size={16} aria-hidden="true" className="inline mr-2" />Reset practice best</button>}
+          </div>
+          {confirmReset && <div role="group" aria-labelledby="reset-question" className="rounded-xl border border-gray-300 dark:border-neutral-600 p-4 mt-3" onKeyDown={e => { if (e.key === 'Escape') keepBest(); }}>
+            <p id="reset-question" className="text-sm font-medium mb-3">Are you sure? This sets your practice best of {highScore} back to 0. Your days played stay.</p>
+            <div className="flex flex-wrap gap-2">
+              <button className={`${control.replace('border-gray-300 dark:border-neutral-600', 'border-red-600 dark:border-red-400')} text-red-700 dark:text-red-300`} onClick={confirmResetBest}>Yes, reset</button>
+              <button ref={cancelReset} className={control} onClick={keepBest}>Cancel</button>
+            </div>
+          </div>}
+        </div>}
+        {copyNotice && <p ref={scoreNotice} tabIndex={-1} role="status" className="text-sm mt-2 focus:outline-none">{copyNotice}</p>}
       </div>
     </section>
   );

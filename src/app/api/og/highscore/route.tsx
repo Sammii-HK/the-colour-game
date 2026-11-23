@@ -1,14 +1,17 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
+import { cleanScore, runLength } from '@/lib/game';
 
 export const runtime = 'edge';
 
+// The score page links here as /api/og/highscore?score=120&streak=12.
+// Anything that is not a whole number up to six digits falls back to 0 so the image always renders.
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const score = searchParams.get('score') || '0';
-    const streak = searchParams.get('streak') || '0';
-    
+    const score = cleanScore(searchParams.get('score')) ?? 0;
+    const streak = cleanScore(searchParams.get('streak')) ?? runLength(score);
+
     return new ImageResponse(
       <div
         style={{
@@ -19,53 +22,33 @@ export async function GET(request: NextRequest) {
           alignItems: 'center',
           justifyContent: 'center',
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          fontSize: 60,
-          fontWeight: 700,
           color: 'white',
+          fontWeight: 700,
+          position: 'relative',
         }}
       >
         <div
           style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            padding: '60px',
-            borderRadius: '20px',
-            textAlign: 'center',
-            border: '2px solid rgba(255, 255, 255, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.12)',
+            padding: '48px 80px',
+            borderRadius: '24px',
+            border: '2px solid rgba(255, 255, 255, 0.25)',
           }}
         >
-          <div style={{ fontSize: '48px', marginBottom: '20px', opacity: 0.9 }}>
-            🎮 CSS Color Challenge
-          </div>
-          <div style={{ fontSize: '96px', fontWeight: 'bold', marginBottom: '20px' }}>
-            {score}
-          </div>
-          <div style={{ fontSize: '36px', marginBottom: '30px', opacity: 0.8 }}>
-            High Score
-          </div>
-          <div style={{ fontSize: '32px', marginBottom: '20px', opacity: 0.7 }}>
-            {streak} correct in a row
-          </div>
-          <div style={{ fontSize: '28px', opacity: 0.6 }}>
-            #dailycsscolor
+          <div style={{ display: 'flex', fontSize: 44, opacity: 0.9, marginBottom: 12 }}>The Colour Game</div>
+          <div style={{ display: 'flex', fontSize: 168, lineHeight: 1 }}>{String(score)}</div>
+          <div style={{ display: 'flex', fontSize: 40, opacity: 0.85, marginTop: 16 }}>Practice best</div>
+          <div style={{ display: 'flex', fontSize: 32, opacity: 0.75, marginTop: 12 }}>
+            {`${streak} CSS colour${streak === 1 ? '' : 's'} named in a row`}
           </div>
         </div>
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '40px',
-            right: '40px',
-            fontSize: '24px',
-            opacity: 0.7,
-          }}
-        >
-          Daily CSS Colour
-        </div>
+        <div style={{ position: 'absolute', bottom: 40, left: 48, display: 'flex', fontSize: 26, opacity: 0.75 }}>#dailycsscolor</div>
+        <div style={{ position: 'absolute', bottom: 40, right: 48, display: 'flex', fontSize: 26, opacity: 0.75 }}>thecolorgame.uk</div>
       </div>,
-      {
-        width: 1200,
-        height: 630,
-      }
+      { width: 1200, height: 630 }
     );
   } catch (error) {
     console.error('Error generating high score image:', error);

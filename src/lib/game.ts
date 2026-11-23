@@ -104,3 +104,22 @@ export function saveProgress(storage: Pick<Storage, 'setItem'>, highScore: numbe
     return true;
   } catch { return false; }
 }
+export function resetHighScore(storage: Pick<Storage, 'setItem'>): boolean {
+  try { storage.setItem('dailycsscolor-highscore', '0'); return true; } catch { return false; }
+}
+/** Practice adds 10 per correct answer and resets on a miss, so a practice best is always ten times a run. */
+export const cleanScore = (value: unknown): number | null => {
+  const text = String(value ?? '').trim();
+  if (!/^\d{1,6}$/.test(text)) return null;
+  return Number(text);
+};
+export const runLength = (score: number) => Math.floor(score / 10);
+export const scorePath = (score: number) => `/score/${score}`;
+export const scoreImagePath = (score: number) => `/api/og/highscore?score=${score}&streak=${runLength(score)}`;
+export function shareText(score: number): string {
+  const run = runLength(score);
+  return `My practice best in The Colour Game is ${score}, naming ${run} CSS colour${run === 1 ? '' : 's'} in a row. Can you beat it? #dailycsscolor`;
+}
+export function shareIntentUrl(score: number, origin: string): string {
+  return `https://x.com/intent/tweet?text=${encodeURIComponent(shareText(score))}&url=${encodeURIComponent(origin + scorePath(score))}`;
+}
