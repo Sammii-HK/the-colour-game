@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getColourForDate, formatRgb, formatHsl } from '@/lib/colours';
 import CopyButton from '@/components/CopyButton';
+import SocialImagePreview from '@/components/SocialImagePreview';
 
 interface PageProps {
   params: Promise<{
@@ -63,12 +64,13 @@ export default async function ColourPage({ params }: PageProps) {
   }
   
   const colour = getColourForDate(date);
-  const siteUrl = process.env.PUBLIC_SITE_URL || 'http://localhost:3000';
-  const imageUrl = `${siteUrl}/api/og?date=${date}`;
+  // Relative so the preview and download work on whichever host serves the page.
+  const imagePath = `/api/og?date=${date}`;
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString + 'T00:00:00.000Z');
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('en-GB', {
+      timeZone: 'UTC',
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -141,7 +143,7 @@ export default async function ColourPage({ params }: PageProps) {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-neutral-700 rounded-lg border border-gray-200 dark:border-neutral-600">
                     <div>
-                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">CSS COLOR</span>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">CSS COLOUR</span>
                       <p className="font-mono text-lg font-bold text-gray-900 dark:text-white">{colour.name.toLowerCase()}</p>
                     </div>
                     <CopyButton text={colour.name.toLowerCase()} />
@@ -224,30 +226,10 @@ export default async function ColourPage({ params }: PageProps) {
                     Social Image
                   </h4>
                   <div className="w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-neutral-600 mb-3 overflow-hidden">
-                    <img
-                    src={imageUrl}
-                    alt={`${colour.name} colour swatch`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Fallback to a simple color swatch if OG image fails
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const fallback = target.nextElementSibling as HTMLElement;
-                        if (fallback) fallback.style.display = 'block';
-                      }}
-                    />
-                    <div 
-                      className="w-full h-full flex items-center justify-center text-white font-bold text-sm"
-                      style={{ 
-                        backgroundColor: colour.hex,
-                        display: 'none'
-                      }}
-                    >
-                      {colour.name}
-                    </div>
+                    <SocialImagePreview src={imagePath} name={colour.name} hex={colour.hex} />
                   </div>
                   <a
-                    href={imageUrl}
+                    href={imagePath}
                     download={`daily-css-colour-${date}.png`}
                     className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-600"
                   >
