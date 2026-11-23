@@ -27,7 +27,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
-              Daily CSS Color
+              Daily CSS Colour
             </h1>
             <p className="mt-3 max-w-md mx-auto text-base text-gray-500 dark:text-gray-300 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
               Build your CSS colour vocabulary with random practice and a three-stage Gauntlet.
@@ -38,10 +38,10 @@ export default function HomePage() {
           <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-700 dark:to-neutral-600 max-w-2xl mx-auto rounded-2xl shadow-lg p-5 sm:p-8 mb-8">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                CSS Color Challenge
+                CSS Colour Challenge
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
-                How well do you know your CSS colors? Test your skills and beat your high score!
+                How well do you know your CSS colours? Test yourself and beat your practice best.
               </p>
             </div>
             <ColourGame />
@@ -55,7 +55,7 @@ export default function HomePage() {
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg overflow-hidden">
             <div className="text-center py-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                Today&apos;s Featured Color
+                Today&apos;s featured colour
               </h2>
               <div className="flex justify-center mb-6">
                 <div 
@@ -95,7 +95,7 @@ export default function HomePage() {
                   boxShadow: `0 4px 15px ${todaysColour.hex}40`
                 }}
               >
-                Get Color Values & CSS
+                Get colour values and CSS
               </Link>
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function HomePage() {
               Join the Creative Community
             </h2>
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-              Get daily color challenges delivered to your inbox every morning. Create art, share your work, and discover what others make with the same color.
+              Get daily colour challenges delivered to your inbox every morning. Create art, share your work, and discover what others make with the same colour.
             </p>
             <div className="mt-8">
               <EmailSignupForm todaysColor={todaysColour.hex} isLightColor={isLight} />
@@ -127,13 +127,13 @@ export default function HomePage() {
         <div className="bg-gradient-to-r from-gray-800 to-gray-700 dark:from-neutral-700 dark:to-neutral-600 rounded-xl p-8 text-center text-white border border-gray-200 dark:border-neutral-600">
           <h2 className="text-3xl font-bold mb-4">Join the Creative Community</h2>
           <p className="text-xl mb-6 opacity-90">
-            Share your high scores and daily color creations with <span className="font-mono font-bold">#dailycsscolor</span>
+            Share your practice best and daily colour creations with <span className="font-mono font-bold">#dailycsscolor</span>
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#game-title" className="px-6 py-3 bg-white text-purple-700 rounded-md font-semibold hover:bg-gray-100">Play and copy your score</a>
+            <a href="#game-title" className="px-6 py-3 bg-white text-purple-700 rounded-md font-semibold hover:bg-gray-100">Play and share your score</a>
           </div>
           <p className="mt-4 text-sm opacity-75">
-            Copy your best score from the game and share it wherever you like.
+            Share your practice best from the game, or copy it to post anywhere.
           </p>
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Explore Colors
+            Explore colours
           </h2>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
             Discover the beautiful CSS colours that inspire daily creativity
@@ -186,7 +186,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Daily Creative Challenges</h3>
             <p className="text-gray-600 dark:text-gray-300">
-              Get a new color and creative prompt every morning. Turn inspiration into actual art and share your creations.
+              Get a new colour and creative prompt every morning. Turn inspiration into actual art and share your creations.
             </p>
           </div>
           
@@ -216,7 +216,7 @@ export default function HomePage() {
       <footer className="bg-white dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-700">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
           <div className="text-center text-gray-500 dark:text-gray-400">
-            <p>&copy; 2026 Daily CSS Color. For designers and developers.</p>
+            <p>&copy; 2026 Daily CSS Colour. For designers and developers.</p>
           </div>
         </div>
       </footer>

@@ -10,7 +10,7 @@ export default function FeedbackPage() {
               Feedback & Suggestions
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              Help us improve Daily CSS Color! Your feedback shapes our content and features.
+              Help us improve Daily CSS Colour. Your feedback shapes what we make next.
             </p>
           </div>
           

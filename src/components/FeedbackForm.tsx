@@ -62,7 +62,7 @@ export default function FeedbackForm() {
         >
           <option value="general">General Feedback</option>
           <option value="content">Email Content</option>
-          <option value="colors">Color Suggestions</option>
+          <option value="colors">Colour Suggestions</option>
           <option value="features">Feature Requests</option>
           <option value="bug">Bug Report</option>
         </select>
@@ -78,7 +78,7 @@ export default function FeedbackForm() {
           onChange={(e) => setFeedback(e.target.value)}
           rows={6}
           className="block w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-gray-900 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Tell us what you think about Daily CSS Color..."
+          placeholder="Tell us what you think about Daily CSS Colour"
         />
       </div>
       
