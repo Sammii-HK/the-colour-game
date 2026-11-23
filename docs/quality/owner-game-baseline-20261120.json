@@ -1,8 +1,0 @@
-{
-  "sourceBaseline": "243408d",
-  "sourcePath": "src/components/ColourGame.tsx",
-  "sha256": "d52c0df42bede608a5f023b27845f686b323a7f7b4dd056188ef9497cd6451a7",
-  "bytes": 24187,
-  "ownerDiff": "+251/-100 lines",
-  "attribution": "Existing owner Gauntlet draft, not agent-authored features"
-}
