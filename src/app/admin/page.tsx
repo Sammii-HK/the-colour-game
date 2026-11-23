@@ -27,13 +27,12 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailStatus, setEmailStatus] = useState<string>('');
+  const [cronSecret, setCronSecret] = useState('');
 
   const fetchStats = async () => {
     if (!adminKey) return;
     
     setLoading(true);
-    console.log('Attempting to fetch stats with admin key:', adminKey.substring(0, 10) + '...');
-    
     try {
       const response = await fetch('/api/admin/subscribers', {
         headers: {
@@ -41,22 +40,18 @@ export default function AdminPage() {
         }
       });
       
-      console.log('Response status:', response.status);
-      
       if (response.ok) {
         const data = await response.json() as SubscriberStats;
-        console.log('Stats data:', data);
         setStats(data);
         setAuthenticated(true);
       } else {
-        const errorText = await response.text();
-        console.error('API Error:', response.status, errorText);
+        console.error('Admin stats request failed with status', response.status);
         setAuthenticated(false);
         alert(`Authentication failed: ${response.status}`);
       }
-    } catch (error) {
-      console.error('Network error fetching stats:', error);
-      alert('Network error - check console for details');
+    } catch {
+      console.error('Network error fetching admin stats');
+      alert('Network error. Try again.');
       setAuthenticated(false);
     } finally {
       setLoading(false);
@@ -69,12 +64,12 @@ export default function AdminPage() {
   };
 
   const sendTestEmail = async () => {
+    if (!cronSecret) { setEmailStatus('Enter the cron secret to send.'); return; }
     setEmailLoading(true);
     setEmailStatus('');
     
     try {
-      // Use the CRON_SECRET_KEY for the email API (different from admin key)
-      const cronSecret = 'c7d49d0f8abf5d1b931b0ec088fe862401f86fa8a51e7ac19a629f607404f8d7';
+      // The email API needs CRON_SECRET_KEY, typed in here and never stored in the page source.
       
       const response = await fetch('/api/send-daily-email?force=true', {
         method: 'POST',
@@ -240,9 +235,19 @@ export default function AdminPage() {
             >
               Preview Actual Email Template
             </button>
+            <label htmlFor="cronSecret" className="sr-only">Cron secret</label>
+            <input
+              type="password"
+              id="cronSecret"
+              value={cronSecret}
+              onChange={(e) => setCronSecret(e.target.value)}
+              autoComplete="off"
+              placeholder="Cron secret"
+              className="px-3 py-2 border border-gray-300 rounded-md text-gray-900"
+            />
             <button
               onClick={sendTestEmail}
-              disabled={emailLoading}
+              disabled={emailLoading || !cronSecret}
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
             >
               {emailLoading ? 'Sending...' : 'Send Test Email'}

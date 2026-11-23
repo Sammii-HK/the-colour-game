@@ -70,8 +70,10 @@ export default {
     
     if (url.pathname === '/trigger' && request.method === 'POST') {
       // Manual trigger for testing
+      // Reject everything when the secret is unset, so "Bearer undefined" can never match.
+      const secret = env.CRON_SECRET_KEY;
       const authHeader = request.headers.get('Authorization');
-      if (authHeader !== `Bearer ${env.CRON_SECRET_KEY}`) {
+      if (!secret || authHeader !== `Bearer ${secret}`) {
         return new Response('Unauthorized', { status: 401 });
       }
       
